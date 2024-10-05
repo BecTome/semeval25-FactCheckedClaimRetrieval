@@ -1,0 +1,387 @@
+post_id,ps_instances,ps_verdicts,fact_check_id,fc_instances,ps_lang,fc_lang,fc_claim_source,fc_claim_target,fc_claim_langs,ps_text_source,ps_text_target,ps_text_langs,fc_title_source,fc_title_target,fc_title_langs,ps_ocr_source,ps_ocr_target,ps_ocr_langs
+0,"[(1593519481.0, 'ig')]",,18,"(1594243500.0, 'https://factual.afp.com/el-video-de-una-orquesta-tocando-el-bolero-de-ravel-sobre-el-sena-en-paris-es-de-2017#367fc73ea7c0c5812887632bc66ff2f5')",spa,spa,La filarmónica de París toca el Bolero de Ravel en una plataforma sobre el Sena por el levantamiento de la cuarentena,The Paris Philharmonic plays Ravel's Bolero on a platform over the Seine for the lifting of the quarantine,"[('spa', 1.0)]",La Filarmonica de Paris vivenciando un bolero de M Ravel en una plataforma sobre el Sena por el levantamiento de la cuarentena,The Philharmonic de Paris experiencing a bolero by M Ravel on a platform over the Seine for the lifting of the quarantine,"[('spa', 1.0)]","El video de una orquesta tocando el Bolero de Ravel sobre el Sena, en París, es de 2017","The video of an orchestra playing Ravel's Bolero on the Seine, in Paris, is from 2017","[('spa', 1.0)]",,,
+1,"[(1620729739.0, 'ig')]",Partly False,26,"(1621021140.0, 'https://factcheck.afp.com/census-bureau-voter-tally-self-reported-not-official-election-data#ef1a31ac2b741f5621f5d1e962410144')",eng,eng,Census Bureau confirms conflict in total number of voters in 2020 election,Census Bureau confirms conflict in total number of voters in 2020 election,"[('eng', 1.0)]",,,,"Census Bureau voter tally is self-reported, not official election data","Census Bureau voter tally is self-reported, not official election data","[('eng', 1.0)]","MOM
+Imahalo
+Patriot news
+@Grahmptr
+...
+....
+JUST IN: US Census Bureau
+Confirms HUGE CONFLICT in
+Total Number of Voters in
+2020 Election-More People
+Voted Than Reported in 2020
+Census Data. there is a
+discrepancy of nearly four
+million votes","MOM
+Imahalo
+Patriot news
+@Grahmptr
+...
+....
+JUST IN: US Census Bureau
+Confirms HUGE CONFLICT in
+Total Number of Voters in
+2020 Election-More People
+Voted Than Reported in 2020
+Census Data. there is a
+discrepancy of nearly four
+million votes","[('eng', 0.9305148124694824), ('fil', 0.03528721258044243)]"
+2,"[(1585630842.0, 'fb')]",False information,39,"(1585952220.0, 'https://factual.afp.com/este-edificio-encendido-no-es-la-torre-latinoamericana-de-mexico-sino-el-empire-state-de-nueva-york#ccd19ef3f66db8c859c3c8005061ddff')",spa,spa,La Torre Latinoamericana se ilumina al declararse la emergencia sanitaria en México,The Latin American Tower lights up when the health emergency is declared in Mexico,"[('spa', 1.0)]","Así luce la Torre Latinoamericana de cdmx después de la declaratoria de #EmergenciaSanitaria
+Llegó la hora de #quedateencasa
+No hagas reuniones
+no carnes asadas con tus amigos
+es #cuarentena
+taggea a quienes no entienden!
+#covid19","This is what the CDMX Latin American Tower looks like after the declaration of #HealthEmergency
+It's time to #stayhome
+don't do meetings
+no roast beef with your friends
+it's #quarantine
+Tag those who don't understand!
+#covid19","[('spa', 1.0)]","Este edificio encendido no es la Torre Latinoamericana de México, sino el Empire State de Nueva York","This lit building is not the Latin American Tower in Mexico, but the Empire State Building in New York","[('spa', 1.0)]",,,
+3,"[(1648580403.0, 'fb')]",False information,37,"(1552003140.0, 'https://factly.in/no-man-did-not-fake-deaf-and-dumb-for-62-years-the-reason-for-divorce-is-an-illicit-relationship/#6fd1ad62a3e9e46b66808eee878b5cc4')",spa,eng,The man who faked being deaf and dumb for 62 years to avoid listening to his wife is now facing divorce from his wife after she found out the truth.,The man who faked being deaf and dumb for 62 years to avoid listening to his wife is now facing divorce from his wife after she found out the truth.,"[('eng', 1.0)]",El hombre fingió ser sordo y mudo durante 62 años para evitar escuchar a su esposa.,The man pretended to be deaf and dumb for 62 years to avoid listening to his wife.,"[('spa', 1.0)]","No, man did not fake being deaf and dumb for 62 years","No, man did not fake being deaf and dumb for 62 years","[('eng', 1.0)]",,,
+4,"[(1515949200.0, 'fb')]",Missing context,30,"(1645529160.0, 'https://factual.afp.com/doc.afp.com.323N6WB#e8f66f3e2c7edb2512dc1d8ebdd3cda5')",spa,spa,Ha fallecido Gabriela Morreale y la prensa ni lo menciona,Gabriela Morreale has passed away and the press doesn't even mention it,"[('spa', 1.0)]","A PESAR DE SUS LOGROS, ESTO NO ES NOTICIA.
+Ha fallecido Gabriela Morreale de Castro: bioquímica, precursora de la detección precoz de hipotiroidismo congénito en recién nacidos mediante la prueba del talón. La prensa ni lo menciona.","DESPITE HIS ACHIEVEMENTS, THIS IS NOT NEWS.
+Gabriela Morreale de Castro has passed away: biochemist, precursor of the early detection of congenital hypothyroidism in newborns through the heel prick test. The press doesn't even mention it.","[('spa', 1.0)]","La científica Morreale murió en 2017 y la prensa sí informó, contrario a lo dicho en redes","The scientist Morreale died in 2017 and the press did report, contrary to what was said on networks","[('spa', 1.0)]",,,
+5,"[(1656816124.0, 'fb')]",Altered photo/video.,2,"(1657251780.0, 'https://factcheck.afp.com/doc.afp.com.32DU27A#eaa4601d2d5eefd6d0e6a685cee1c657')",kor,eng,"Photos show NATO leaders in Madrid, Spain","Photos show NATO leaders in Madrid, Spain","[('eng', 1.0)]","스페인 마드리드에서 열린 NATO 정상회의. 우연은 없다; 이 ""기괴한 예술""의 본질은 당신에게 무엇을 말해주는가?","NATO Summit in Madrid, Spain. There is no coincidence; What does the nature of this ""bizarre art"" tell you?","[('kor', 1.0)]",Doctored photos of world leaders with 'Satanic art' made by artist to criticise power,Doctored photos of world leaders with 'Satanic art' made by artist to criticise power,"[('eng', 1.0)]",,,
+6,"[(1608091401.0, 'fb')]",False information,16,"(1608249540.0, 'https://healthfeedback.org/claimreview/the-american-medical-association-does-not-reject-nor-support-hydroxychloroquine-as-a-treatment-for-covid-19-nor-did-it-change-its-position-on-the-use-matter/#82043a81c975548cfd63ba8f15be4769')",eng,eng,"The AMA “reversed course”, now “giving the green light to doctors prescribing HCQ to their COVID patients.”","The AMA “reversed course”, now “giving the green light to doctors prescribing HCQ to their COVID patients.”","[('eng', 1.0)]",I'm old enough to remember when hydroxychloroquine was a kook theory from a kook president.,I'm old enough to remember when hydroxychloroquine was a kook theory from a kook president.,"[('eng', 1.0)]","The American Medical Association does not reject nor support hydroxychloroquine as a treatment for COVID-19, nor did it change its position on the use matter","The American Medical Association does not reject nor support hydroxychloroquine as a treatment for COVID-19, nor did it change its position on the use matter","[('eng', 1.0)]",,,
+7,"[(1645240405.0, 'fb')]",False information,28,"(1647404520.0, 'https://factcheck.afp.com/doc.afp.com.324P2DC#14376e8d12419109c681a7425390ee9b')",kor,eng,Covid-19 vaccines alter human DNA,Covid-19 vaccines alter human DNA,"[('eng', 1.0)]","<트랜스휴먼 : 유전자변형, 하이브리드 잡종, 인간개조>
+
+코로나백신 접종은 인류에 대한 천인공로할 유전자변형 생체실험입니다","<Transhuman: genetic modification, hybrid hybrid, human modification>
+
+Corona vaccine inoculation is a genetically modified biological experiment that will be a blessing to mankind","[('kor', 1.0)]",False posts that Covid vaccines alter DNA share pre-pandemic photo,False posts that Covid vaccines alter DNA share pre-pandemic photo,"[('eng', 1.0)]",,,
+8,"[(1612380187.0, 'fb'), (1612450113.0, 'fb'), (1604783176.0, 'fb')]",False information,44,"(1616525280.0, 'https://factual.afp.com/la-cita-sobre-el-exito-de-la-esclavitud-no-es-de-aristoteles-y-no-refleja-su-pensamiento#f591c3c3f7c080fa595004d9856736da')",spa,spa,"Cita de Aristóteles: ""La esclavitud nunca tiene tanto éxito como cuando el esclavo está convencido de que es por su propio bien""","Aristotle Quote: ""Slavery is never so successful as when the slave is convinced that it is for his own good""","[('spa', 1.0)]",,,,La cita sobre el “éxito” de la esclavitud no es de Aristóteles y no refleja su pensamiento,"The quote about the ""success"" of slavery is not from Aristotle and does not reflect his thinking","[('spa', 1.0)]","""La esclavitud
+nunca tiene tanto
+éxito como
+cuando el esclavo
+está convencido
+de que es por su
+propio bien"" -
+Aristóteles","""Slavery
+never have so much
+success as
+when the slave
+Is conviced
+that it is for your
+own good"" -
+Aristotle","[('spa', 0.891075074672699), ('por', 0.10892493277788162)]"
+9,"[(1648956190.0, 'fb')]",False information,8,"(1604050440.0, 'https://factcheck.afp.com/facebook-post-about-eco-friendly-hotel-singapore-was-not-shared-verified-account-sir-david#4c419aa64a14a5ac63ab65c6775fccd4')",spa,eng,Sir David Attenborough praises eco-friendly hotel in Singapore on Facebook,Sir David Attenborough praises eco-friendly hotel in Singapore on Facebook,"[('eng', 1.0)]",Eco edificio en Singapur 🇸🇬 el primero en producir su propia electricidad con los mismos desechos del mismo edificio,Eco building in Singapore 🇸🇬 the first to produce its own electricity with the same waste from the same building,"[('spa', 1.0)]",This Facebook post about an ‘eco-friendly’ hotel in Singapore was not shared by a verified account for Sir David Attenborough,This Facebook post about an ‘eco-friendly’ hotel in Singapore was not shared by a verified account for Sir David Attenborough,"[('eng', 1.0)]",,,
+10,"[(1615191779.0, 'fb')]",False information,46,"(1617171480.0, 'https://factcheckkorea.afp.com/wen-daetongryeong-banmicinbug-1in-siwihaessda-2015nyeon-yeogsa-gyogwaseo-bandae-1in-siwi-sajin#17e5c06bbcba7d186715e1911f862a33')",kor,kor,문재인 대통령이 반미·친북 1인 시위를 벌였다.,President Moon Jae-in held an anti-US and pro-North Korean one-man protest.,"[('kor', 1.0)]",,,,"文 대통령, 반미·친북 1인 시위했다? 2015년 역사 교과서 반대 1인 시위 사진 조작한 것","President Moon held an anti-US, pro-North Korean one-man protest? Manipulating photos of one-person protests against history textbooks in 2015","[('kor', 1.0)]","이런한심한자가 대통령이란다.
+반공법폐지
+국정원폐지
+한미동맹반대
+통일연방제
+북 핵은자위적
+신미주당
+미치광이 김정은의 하수인.
+있는 대수술 9일","This pathetic person is the president.
+abolition of anti-communist law
+abolition of the NIS
+Opposition to the US-Korea alliance
+unified federal system
+North Korea's nuclear weapons are self-defense
+Shinmijudang
+The minion of the madman Kim Jong-un.
+9 days of major surgery","[('kor', 0.9596902132034302)]"
+11,"[(1627798567.0, 'fb')]",Partly false information,23,"(1628054940.0, 'https://factcheckkorea.afp.com/http%253A%252F%252Fdoc.afp.com%252F9JU82Q-1#dead5487c9a9e43c79bb2a777c964370')",kor,kor,스타벅스가 한국 내 모든 매장을 닫고 철수하기로 했다,Starbucks to close all stores in Korea and withdraw,"[('kor', 1.0)]","🎯드디어 StarBucks 한국 탈출❗ 
+🎯Star Bucks Korea의 주식을 전량 매각. 
+1580개 점포 폐쇄. 
+전세계 매출 2위 한국을 떠난다❗","🎯Finally, StarBucks escaped from Korea❗
+🎯Sell all stocks of Star Bucks Korea.
+1580 stores closed.
+Leaving Korea, the world's second-largest in sales","[('kor', 1.0)]","스타벅스, 한국 내 모든 매장 닫는다? 회사 측 '사실무근'",Starbucks to close all stores in Korea? Company's 'groundless',"[('kor', 1.0)]",,,
+12,"[(1591848183.0, 'fb')]",False information,34,"(1592237340.0, 'https://factcheck.afp.com/image-shows-roma-camp-north-paris#29bd8c4911eeb447ce5b90bee961970a')",eng,eng,"Photo shows homeless people in Los Angeles, California","Photo shows homeless people in Los Angeles, California","[('eng', 1.0)]","Hmmmm
+
+""THIS IS LOS ANGELES, CALIFORNIA. And they made us to believe that we can only find shanties & slums like this in Africa. This is what they hide from us until you go there and see for yourself...""","Hmmmm
+
+""THIS IS LOS ANGELES, CALIFORNIA. And they made us to believe that we can only find shanties & slums like this in Africa. This is what they hide from us until you go there and see for yourself...""","[('eng', 1.0)]",The image shows a Roma camp in the north of Paris,The image shows a Roma camp in the north of Paris,"[('eng', 1.0)]",,,
+13,"[(1634131174.0, 'fb')]",False information,22,"(1635319020.0, 'https://factcheckkorea.afp.com/http%253A%252F%252Fdoc.afp.com%252F9QG72F-1#769b54554cbdd0a1b9117ad392456e5e')",kor,kor,국가유공자 중 50만 명에 달하는 인원이 전라도 출신이다,Nearly half a million people of national merit are from Jeollanam-do.,"[('kor', 1.0)]",,,,"전라도 출신 국가유공자, 50만 명에 달한다? 정부 공식 통계보다 높은 잘못된 수치","The number of people of national merit from Jeolla-do is 500,000? Wrong figure higher than official government statistics","[('kor', 1.0)]","전라도에서만 국가유공자가
+50만이라니.이게
+말이되나?김대중.노무현 정권하에서
+국가유공자까지 하면
+70만명이다.이들 직계가족들 까지
+혜택을 받으니 그 수는 상상을 초월
+한다.103만 공무원중 60~70%가
+이들 유공자들이다.제도 정비가
+시급하다.","Only in Jeolla Province, people of national merit
+500,000. This is
+Does it make sense? Under the Kim Dae-jung and Roh Moo-hyun regimes
+Even national merit
+700,000 people, including their immediate family
+The number of benefits is beyond imagination
+60~70% of 10.03 million civil servants
+These are the people of merit.
+urgent","[('kor', 1.0)]"
+14,"[(1657414536.0, 'fb')]",False information,42,"(1657781880.0, 'https://factcheck.afp.com/doc.afp.com.32E83TB#ad44745b78bbf989ee38d2347c7a7758')",kor,eng,Trump statue erected on the site of a destroyed landmark in Georgia,Trump statue erected on the site of a destroyed landmark in Georgia,"[('eng', 1.0)]","여러분은 어떻게 생각하십니까?
+저는 섬칫하네요
+황금 최고의 평화시대가 잠시오구
+그 뒤에는 정말 무서운 
+단일화 ㆍ우상시대가 온다는게
+맞는것 같으네요","What do you think?
+I'm terrified
+The golden age of best peace is coming soon
+after that it's really scary
+Unification ㆍThe age of idols is coming
+I guess that's right","[('kor', 1.0)]",Edited image misleads in posts claiming Trump statue replaced destroyed US monument,Edited image misleads in posts claiming Trump statue replaced destroyed US monument,"[('eng', 1.0)]","새로운 조지아가이드스톤이 세워졌어요!!!
+유엔뉴스
+승인 2022.07.08 22:45 | 최종 수정 2022.07.08 23:06
+자료:SpecialQForces sQuad
+That new Georgia Guidestone is PERFECTO!!!
+그 새로운 조지아 가이드스톤은 완벽해!!!
+여러분은 어떻게 생각하십니까??
+의견 0
+UNNEWS","A new Georgia guidestone has been established!!!
+UN News
+Approval 2022.07.08 22:45 | Last modified 2022.07.08 23:06
+Material:SpecialQForces sQuad
+That new Georgia Guidestone is PERFECTO!!!
+That new Georgia guidestone is perfect!!!
+What do you think??
+0 comments
+UNNEWS","[('kor', 0.6971482634544373), ('eng', 0.2676151394844055)]"
+14,"[(1657414536.0, 'fb')]",False information,21,"(1657782000.0, 'https://factcheckkorea.afp.com/doc.afp.com.32E98RJ#522495d33c500f58df9e99ed72dddf31')",kor,kor,조지아 가이드스톤 구조물 자리에 트럼프 미국 전 대통령의 동상이 세워졌다.,A statue of former US President Donald Trump has been erected on the site of the Georgia Guidestone structure.,"[('kor', 1.0)]","여러분은 어떻게 생각하십니까?
+저는 섬칫하네요
+황금 최고의 평화시대가 잠시오구
+그 뒤에는 정말 무서운 
+단일화 ㆍ우상시대가 온다는게
+맞는것 같으네요","What do you think?
+I'm terrified
+The golden age of best peace is coming soon
+after that it's really scary
+Unification ㆍThe age of idols is coming
+I guess that's right","[('kor', 1.0)]",이 사진은 2010년 촬영된 사진에 트럼프 美 전 대통령 흉상 사진을 합성한 것이다,This photo is a composite of a photo taken in 2010 and a bust of former US President Donald Trump.,"[('kor', 1.0)]","새로운 조지아가이드스톤이 세워졌어요!!!
+유엔뉴스
+승인 2022.07.08 22:45 | 최종 수정 2022.07.08 23:06
+자료:SpecialQForces sQuad
+That new Georgia Guidestone is PERFECTO!!!
+그 새로운 조지아 가이드스톤은 완벽해!!!
+여러분은 어떻게 생각하십니까??
+의견 0
+UNNEWS","A new Georgia guidestone has been established!!!
+UN News
+Approval 2022.07.08 22:45 | Last modified 2022.07.08 23:06
+Material:SpecialQForces sQuad
+That new Georgia Guidestone is PERFECTO!!!
+That new Georgia guidestone is perfect!!!
+What do you think??
+0 comments
+UNNEWS","[('kor', 0.6971482634544373), ('eng', 0.2676151394844055)]"
+15,"[(1571672166.0, 'tw')]",,10,"(1572849540.0, 'https://factcheck.afp.com/video-lufthansa-aircraft-was-created-using-flight-simulator-programme#734d7eabef6809a176d441b4d187a269')",spa,eng,Bumpy landing of real Lufthansa flight,Bumpy landing of real Lufthansa flight,"[('eng', 1.0)]","Avion de lufthansa, se accideneta al querer aterrizar, la astucia del piloto evitá que ocurra una gran tragedia","Lufthansa plane, crashes when trying to land, the cunning of the pilot prevents a great tragedy from happening","[('spa', 1.0)]",This video of a Lufthansa aircraft was created using a flight simulator programme,This video of a Lufthansa aircraft was created using a flight simulator programme,"[('eng', 1.0)]",,,
+16,"[(None, 'fb')]",,3,"(1579275420.0, 'https://factcheck.afp.com/no-deaths-were-reported-several-people-suffered-injuries-following-bus-crash-zambias-milima-region#8e41eb222d4ca54aa89ebee51fa575ea')",eng,eng,"Bus crash claims 18 lives in Milima, Zambia","Bus crash claims 18 lives in Milima, Zambia","[('eng', 1.0)]",18 people have died in the power tools accident today at Milemi few kilometers from Kasama today at 16hrs.,18 people have died in the power tools accident today at Milemi few kilometers from Kasama today at 16hrs.,"[('eng', 1.0)]",No deaths were reported but several people suffered injuries following a bus crash in Zambia’s Milima region,No deaths were reported but several people suffered injuries following a bus crash in Zambia’s Milima region,"[('eng', 1.0)]",,,
+17,"[(1616552850.0, 'fb'), (1616552973.0, 'fb'), (1616493207.0, 'fb')]",False information,45,"(1617697980.0, 'https://factcheckkorea.afp.com/korona19-doggamboda-yaghan-gamgi-baireoseuda-jeonmunga-korona19-yubalhaneun-sars-cov-2-gamgi#ecf6e27c64bc63b96b638520573044e8')",kor,kor,코로나19는 독감보다 약한 감기 바이러스다.,COVID-19 is a cold virus that is weaker than the flu.,"[('kor', 1.0)]",,,,"코로나19, 독감보다 약한 감기 바이러스다? 전문가 ‘코로나19 유발하는 SARS-CoV-2, 감기 바이러스와 달라’",Is COVID-19 a weaker cold virus than the flu? Expert 'SARS-CoV-2 that causes Corona 19 is different from cold virus',"[('kor', 1.0)]","콜오나는 독감보다 약한
+감기바이러스다.
+대다수 건강한 국민은
+자연면역력으로 치유가
+가능하므로 콜오나백신을
+맞을 필요가 없다.
+콜오나는
+상기도바이러스이므로
+백신으로 혈액 속에 만든
+인공적인 항체와 만날 수가
+없어 집단면역은
+불가능하다.
+백신접종의 이익이 부작용
+피해보다 크다는 주장은
+과학적인 근거가 있나?","Kolona is weaker than the flu
+a cold virus
+Most healthy people
+Healing with natural immunity
+Because it is possible, the Kolona vaccine
+no need to be right
+Callona
+Because upper respiratory tract virus
+made in the blood as a vaccine
+encounter with artificial antibodies
+No herd immunity
+impossible.
+Vaccination benefits and side effects
+claim that the damage is greater than
+Is there any scientific basis?","[('kor', 0.971153974533081)]"
+18,"[(1657223333.0, 'fb'), (1654696172.0, 'fb')]",False information.,0,"(1655739360.0, 'https://factcheck.afp.com/doc.afp.com.32CM7B6#ee0e1119e258f30f95f6876931cb0a51')",eng,eng,South Africa's PRASA hiring workers for railway,South Africa's PRASA hiring workers for railway,"[('eng', 1.0)]","PRASA is hiring for fixing of railway lines from Soweto to Johannesburg. Take your certified ID copy and Original ID book to Johannesburg Park Station, Prasa Offices. Kindly plug others.","PRASA is hiring for fixing of railway lines from Soweto to Johannesburg. Take your certified ID copy and Original ID book to Johannesburg Park Station, Prasa Offices. Kindly plug others.","[('eng', 1.0)]",Facebook posts falsely claim rail operator in South Africa has job openings for Soweto-Jo’burg route,Facebook posts falsely claim rail operator in South Africa has job openings for Soweto-Jo’burg route,"[('eng', 1.0)]",,,
+19,"[(1596635492.0, 'fb')]",False information,14,"(1597120980.0, 'https://factcheck.afp.com/video-shows-road-chinas-guangdong-province#73cb3435c8766e61d685548dbdd4b24f')",eng,eng,"This video shows big potholes on a road in Mumbai, India","This video shows big potholes on a road in Mumbai, India","[('eng', 1.0)]","Vehicle suspension testing machine installed successfully by BMC in MUMBAI..
+WHAT AN AMAZING TECHNOLOGY ... 👇","Vehicle suspension testing machine installed successfully by BMC in MUMBAI..
+WHAT AN AMAZING TECHNOLOGY ... 👇","[('eng', 1.0)]",This video shows a road in China’s Guangdong province,This video shows a road in China’s Guangdong province,"[('eng', 1.0)]",,,
+20,"[(1615337789.0, 'fb')]",False information,5,"(1617002880.0, 'https://factcheckkorea.afp.com/hyeolab-jeongsangsuci-hangugman-12080mmhg-sasil-anim-who-poham-segye-gaggug-bogeon-danggug-jeongsang#d3e79205ef53d05b01b4c3a32264d5ff')",kor,kor,"혈압 정상수치, 한국만 120/80mmHg다.",Normal blood pressure is 120/80 mmHg in Korea alone.,"[('kor', 1.0)]",,,,"혈압 정상수치, 한국만 120/80mmHg? 사실 아님… WHO 포함, 세계 각국 보건 당국 정상 혈압 120/80mmHg 미만 권고","Blood pressure normal value, 120/80mmHg only in Korea? not true... WHO and other health authorities around the world recommend a normal blood pressure of less than 120/80 mmHg","[('kor', 1.0)]","혈압 정상수치
+140/100
+(mmHg)
+WHO 성인 혈압 권고치 입니다
+한국만 120/80....약 팔아 먹기위해
+의사협회의 압력이 이렇게 막강 합니다","normal blood pressure
+140/100
+(mmHg)
+WHO recommendations for adult blood pressure
+Only in Korea 120/80....To sell medicine
+The pressure of the medical association is so strong","[('kor', 0.808708131313324), ('eng', 0.08710715919733047)]"
+21,"[(1634160304.0, 'fb')]",Altered photo,48,"(1634637540.0, 'https://factcheck.afp.com/http%253A%252F%252Fdoc.afp.com%252F9PX8HQ-1#54b9de5760a2c26e1ec73c25f82bcc24')",kor,eng,This photo shows Kim Jong-un in 2021,This photo shows Kim Jong-un in 2021,"[('eng', 1.0)]",같은 김정은으로 보이지 않는데.. 지금은 세상에서 일어나는 일들이 마치 연극이나 영화를 보는것 같다,"It doesn't look like the same Kim Jong-un, but what's happening in the world right now is like watching a play or a movie.","[('kor', 1.0)]",This photo has been digitally doctored to make Kim Jong-un look thinner,This photo has been digitally doctored to make Kim Jong-un look thinner,"[('eng', 1.0)]",,,
+22,"[(1647795974.0, 'fb')]",False information,33,"(1648020300.0, 'https://factcheckkorea.afp.com/doc.afp.com.326M97J#6bbf9f84d77c36e43171c6ef6915837d')",kor,kor,코로나19 백신 접종을 마친 호주 의사가 수술 도중 쓰러지는 모습이다,Australian doctor who has been vaccinated against COVID-19 collapses during surgery,"[('kor', 1.0)]","우리는 백신 캠페인 이후 쓰러지는 여러 스포츠맨, 기자, 인터뷰를 보았습니다.
+ 물론 우리는 실제로 카메라 앞에 있는 장면만 볼 수 있습니다.
+
+ 더 나쁜 것은 다른 사람들의 삶을 책임지는 사람들에게 일어날 때입니다 ...","We've seen several sportsmen, journalists, and interviews fall apart after the vaccine campaign.
+ Of course, we can only see the scene that is actually in front of the camera.
+
+ Even worse is when it happens to those who take responsibility for the lives of others...","[('kor', 1.0)]",이 영상은 코로나19 백신이 출시되기 이전인 2020년 1월 중국에서 촬영된 것이다,"This video was filmed in China in January 2020, before the COVID-19 vaccine was released.","[('kor', 1.0)]",,,
+23,"[(1625899875.0, 'fb')]",Partly false information,15,"(1626300624.0, 'https://www.usatoday.com/story/news/factcheck/2021/07/14/fact-check-image-purported-electric-car-cemetery-taken-china/7938854002/#9ba2e01971e016d6866c4d197e71aa8a')",spa,eng,Image shows electric car 'cemetery' in France,Image shows electric car 'cemetery' in France,"[('eng', 1.0)]","Se acuerdan cuando decían que los autos eléctricos eran relativamente más ecológicos?
+
+Ahora es hermoso verlos crecer libres en la naturaleza 🤗","Remember when they said that electric cars were relatively more ecological?
+
+Now it's beautiful to see them grow free in nature 🤗","[('spa', 1.0)]",Fact check: Viral image of an electric car 'cemetery' shows vehicles from a ride-share company in China,Fact check: Viral image of an electric car 'cemetery' shows vehicles from a ride-share company in China,"[('eng', 1.0)]",,,
+24,"[(1648054763.0, 'tw')]",,9,"(1648657920.0, 'https://factcheck.afp.com/doc.afp.com.3278898#466431b30fedcb013034105541f25301')",eng,eng,Leaves on trees prove Biden staged photo of departure to Europe,Leaves on trees prove Biden staged photo of departure to Europe,"[('eng', 1.0)]","@POTUS This is a live shot of The White House today. The trees are mostly bare and the weather is overcast. 
+
+Your administration is a propaganda machine spreading misinformation. 
+
+Everything you do and say is a lie.","@POTUS This is a live shot of The White House today. The trees are mostly bare and the weather is overcast. 
+
+Your administration is a propaganda machine spreading misinformation. 
+
+Everything you do and say is a lie.","[('eng', 1.0)]",White House trees do not prove Joe Biden staged departure photo,White House trees do not prove Joe Biden staged departure photo,"[('eng', 1.0)]",,,
+25,"[(1657154221.0, 'fb')]",False information,17,"(1591094580.0, 'https://factcheck.afp.com/clip-actually-shows-bee-attack-outside-mall-nicaragua#755dead70ecd58544f77b7c306144147')",spa,eng,Video shows Asian giant hornet attack in US in May 2020,Video shows Asian giant hornet attack in US in May 2020,"[('eng', 1.0)]","UN ATAQUE DE AVISPONES...TENGO ENTENDIDO ES EN LOS ESTADOS UNIDOS.   OJO.
+CUANDO HAYA UN PANAL HAY QUE MANTENER LA CALMA.  LOS RUIDOS Y MOVIMIENTOS BRUSCOS LAS ALTERAN.","A HORNET ATTACK...I UNDERSTAND IT IS IN THE UNITED STATES. EYE.
+WHEN THERE IS A HONEYCOMB YOU HAVE TO KEEP CALM. THE NOISES AND SURPRISING MOVEMENTS ALTER THEM.","[('spa', 1.0)]",This clip actually shows a bee attack outside a mall in Nicaragua,This clip actually shows a bee attack outside a mall in Nicaragua,"[('eng', 1.0)]",,,
+26,"[(1621922036.0, 'fb')]",False information,20,"(1622460360.0, 'https://factcheck.afp.com/stonehenge-restoration-photos-shared-alongside-false-claim-monument-was-built-1950s#36fa4b6b1788ec94880e73699fc77341')",kor,eng,Photographs show British prehistoric monument of Stonehenge was artificially created in 1954,Photographs show British prehistoric monument of Stonehenge was artificially created in 1954,"[('eng', 1.0)]",남의것 뺏어가서 가짜 유적지를 만들고 우리나라 진짜 유적지는 장난감으로 덮으려하는 망할놈들!!,Damn people who take other people's things and make fake ruins and cover up real ruins in Korea with toys!!,"[('kor', 1.0)]",Stonehenge restoration photos shared alongside false claim monument was 'built in 1950s',Stonehenge restoration photos shared alongside false claim monument was 'built in 1950s',"[('eng', 1.0)]",,,
+27,"[(1646032311.0, 'fb'), (1646032334.0, 'fb')]",False information,25,"(1646931360.0, 'https://factual.afp.com/doc.afp.com.324V7AB#dd0bb9b41359f1a37e647a76e3f08a89')",spa,spa,Video muestra piloto ucraniano escapando de ataque ruso,Video shows Ukrainian pilot escaping Russian attack,"[('spa', 1.0)]","Un piloto ucraniano denominado el fantasma de Kiev  combatiendo y esquivando el ataque ruso  el héroe que derivo 6 aviones ruso 
+ amén para ese valiente piloto 🙏🙏🙏🙏🙏","A Ukrainian pilot called the ghost of kyiv fighting and dodging the Russian attack the hero who drifted 6 Russian planes
+ amen for that brave pilot 🙏🙏🙏🙏🙏","[('spa', 1.0)]","Video de un avión que esquiva disparos pertenece a un videojuego, no a un ataque en Ucrania","Video of a plane dodging gunfire belongs to a video game, not an attack in Ukraine","[('spa', 1.0)]",,,
+28,"[(1599651574.0, 'fb')]",False information,40,"(1631865540.0, 'https://factcheckkorea.afp.com/http%253A%252F%252Fdoc.afp.com%252F9MZ7DT-1#ebcc5d3791a0e87ee21e95b3f6bc4add')",kor,kor,Covid-19가 인공 지능 백신 접종 식별 인증서라는 뜻이다,It means Covid-19 is Artificial Intelligence Vaccination Identification Certificate,"[('kor', 1.0)]","이태리 의사의 코로나 검사와 백신에대한 
+경고‼️‼️
+
+꼬로놔주솨안돼!경고야!コロナワクチンけ警告
+
+즉삭제각 영상이라 또 내 놀방영상이랑 짬뽕해서 
+올려놨지용~ㅎ
+
+구독과 좋아요 주세용~💕💕","Italian doctors about coronavirus tests and vaccines
+Warning‼️‼️
+
+Don't let it go! It's a warning! Coronawakchinke警告
+
+It's a deleted video, so it's mixed with my playroom video.
+I uploaded it~
+
+Please subscribe and like~💕💕","[('kor', 1.0)]","Covid-19, '인공 지능 백신 접종 식별 인증서'라는 뜻이다? '코로나, 바이러스, 질병, 2019'의 영문 합성어","What does Covid-19 mean 'Artificial Intelligence Vaccination Identification Certificate'? English compound word of 'corona, virus, disease, 2019'","[('kor', 1.0)]",,,
+29,"[(1601298279.0, 'fb')]",Partly false information,36,"(1601460480.0, 'https://factcheck.afp.com/video-actually-shows-cashew-shaped-biscuits-being-made#3da7f142f60555ca3d0f21d14ebcf739')",eng,eng,"Fake cashew nuts made from flour and chemicals in Kerala state, India","Fake cashew nuts made from flour and chemicals in Kerala state, India","[('eng', 1.0)]","Fake Cashewnuts, made in Kerala. Prepared by mixing maida and some chemicals, which gives the same taste of original cashew nuts cost per Kg is only Rs.300 to Rs.400.
+Create awareness by sharing in your the groups","Fake Cashewnuts, made in Kerala. Prepared by mixing maida and some chemicals, which gives the same taste of original cashew nuts cost per Kg is only Rs.300 to Rs.400.
+Create awareness by sharing in your the groups","[('eng', 1.0)]",This video actually shows cashew-shaped biscuits being made,This video actually shows cashew-shaped biscuits being made,"[('eng', 1.0)]",,,
+30,"[(1648089860.0, 'fb')]",Partly false information,41,"(1648553400.0, 'https://factcheck.afp.com/doc.afp.com.326V4PP#6b9dfef90f1d15c6dec213bc5e6585e3')",kor,eng,A massive fire broke out at the Fukushima nuclear power plant after the March 16 earthquake in eastern Japan,A massive fire broke out at the Fukushima nuclear power plant after the March 16 earthquake in eastern Japan,"[('eng', 1.0)]","★긴급] 일본 후쿠시마 원전에서 화재 발생...일본 정부, 주변 지역에 긴급대피령 선포★
+","★Emergency] A fire breaks out at the Fukushima nuclear power plant in Japan...The Japanese government declares an emergency evacuation order in the surrounding area★
+","[('kor', 1.0)]",Social media users share misleading Fukushima plant claim after Japan earthquake,Social media users share misleading Fukushima plant claim after Japan earthquake,"[('eng', 1.0)]","[속보] 일본 후쿠시마 원전
+붉은 화염에 휩싸인 상황
+현재상황
+""죽고싶지 않다면 지금 당장 도망쳐야한다”
+긴급대피령 내려진 흐쿠시마 7:34","[Breaking News] Japan's Fukushima Nuclear Power Plant
+engulfed in red flames
+current situation
+""If you don't want to die, you have to run away now.""
+Hkushima, where an emergency evacuation order was issued 7:34","[('kor', 0.9320526123046875)]"
+31,"[(1643717173.0, 'fb')]",Missing context,13,"(1644469680.0, 'https://factcheckkorea.afp.com/doc.afp.com.9Z82PQ#cdd9990cb89b1a4cdcd68ab0facf2fb8')",kor,kor,일본 제약사가 구충제 이버멕틴 임상 3상에서 오미크론 치료 효과를 발견했다,"A Japanese pharmaceutical company discovered the efficacy of Omicron treatment in phase 3 clinical trial of ivermectin, an anthelmintic drug","[('kor', 1.0)]","로이터통신에 따르면 코와는 임상 3상 시험 결과 ""이버멕틴이 오미크론 변이에 대한 항바이러스 효과가 있다는 것을 확인했다""고 31일 발표했다.","According to Reuters, Kowa announced on the 31st that the results of the phase 3 clinical trial ""confirmed that ivermectin has an antiviral effect against omicron mutations.""","[('kor', 1.0)]","일본 제약사, 구충제 이버멕틴 임상 3상에서 오미크론 치료 효과 발견했다? 오보에 기반한 잘못된 정보","Japanese pharmaceutical company discovered the effect of Omicron treatment in phase 3 clinical trial of ivermectin, an anthelmintic drug? Misinformation based on misinformation","[('kor', 1.0)]",,,
+32,"[(1610424636.0, 'fb')]",,19,"(1610566980.0, 'https://factcheck.afp.com/quotes-us-democrats-falsely-characterized-calls-violence#f667dae58edeb0d1158a5e5aa0ba94d7')",spa,eng,Democrats have incited unrest,Democrats have incited unrest,"[('eng', 1.0)]","🚨🚨🚨🚨BREAKING NEWS🚨🚨🚨🚨🚨
+EL PRESIDENTE TRUMP ACTIVA LA LEY DE INSURRECCIÓN. LOS MILITARES HAN TOMADO EL CONTROL. 
+
+ESTOS DÍAS ANTES DEL 20 DE ENERO SERÁN MUY FUERTES. YA COMENZARON LOS APAGONES EN VARIOS PAÍSES DEL MUNDO Y TAMBIÉN LOS ARRESTOS.
+
+MR. ROMERO TV.","🚨🚨🚨🚨BREAKING NEWS🚨🚨🚨🚨🚨
+PRESIDENT TRUMP ACTIVATES THE INSURRECTION LAW. THE MILITARY HAVE TAKEN CONTROL.
+
+THESE DAYS BEFORE JANUARY 20 WILL BE VERY STRONG. THE BLACKOUTS HAVE ALREADY BEGUN IN SEVERAL COUNTRIES OF THE WORLD AND ALSO THE ARRESTS.
+
+MR. ROMEROTV.","[('spa', 1.0)]",Quotes from US Democrats falsely characterized as calls for violence,Quotes from US Democrats falsely characterized as calls for violence,"[('eng', 1.0)]",,,
+33,"[(1596341010.0, 'fb')]",False information,38,"(1596524280.0, 'https://factcheck.afp.com/photo-shows-street-parade-switzerland-covid-19-pandemic#90ccd0c9a78e293b06f26d7a9cef3ee6')",eng,eng,"Photo shows 1.3 million protestors against COVID-19 restrictions in Berlin, Germany","Photo shows 1.3 million protestors against COVID-19 restrictions in Berlin, Germany","[('eng', 1.0)]",,,,This photo shows a street parade in Switzerland before the COVID-19 pandemic,This photo shows a street parade in Switzerland before the COVID-19 pandemic,"[('eng', 1.0)]","Protest in Berlin today against the CV Lockdown and
+tyranny
+MSM says 20-25K protesters with most headlines
+says ""thousands of people""...000
+According to police:
+800,000 to 1,300,000,000
+KELLER
+4444","Protest in Berlin today against the CV Lockdown and
+tyranny
+MSM says 20-25K protesters with most headlines
+says ""thousands of people""...000
+According to police:
+800,000 to 1,300,000,000
+KELLER
+4444","[('eng', 0.9926390647888184)]"
+34,"[(1614423140.0, 'fb')]",False information,49,"(1615544040.0, 'https://factcheck.afp.com/no-video-was-originally-uploaded-satire-greece-based-facebook-user#ff5cfa4cd5136d97ef80065337cc186d')",eng,eng,Video shows face masks from China inserted with RFID chips,Video shows face masks from China inserted with RFID chips,"[('eng', 1.0)]","Made in China masks are made of plastic, sprayed with chemicals and often contain RFID chips. (44 seconds) Single-use masks are typically made from polypropylene, a petrol fuel-derived plastic that can take hundreds of years to break down.","Made in China masks are made of plastic, sprayed with chemicals and often contain RFID chips. (44 seconds) Single-use masks are typically made from polypropylene, a petrol fuel-derived plastic that can take hundreds of years to break down.","[('eng', 1.0)]","No, the video was originally uploaded as satire by a Greece-based Facebook user","No, the video was originally uploaded as satire by a Greece-based Facebook user","[('eng', 1.0)]",,,
+35,"[(1657679623.0, 'fb')]",False information,35,"(1595888201.0, 'https://leadstories.com/hoax-alert/2020/07/fact-check-military-vanguard-11-billion-dollar-border-wall-did-not-blow-down-in-hurriane-hanna.html#9e281cdd4449c46a757f858177491e1e')",spa,eng,A section of the $11 Billion Dollar Wall blew over during Hurricane Hanna,A section of the $11 Billion Dollar Wall blew over during Hurricane Hanna,"[('eng', 1.0)]",‪Las fuertes ráfagas de viento de la tormenta tropical #Hanna ocasionaron la caída de una parte del muro fronterizo entre Estados Unidos y México. ‬,Strong gusts of wind from tropical storm #Hanna caused part of the border wall between the United States and Mexico to fall.,"[('spa', 1.0)]",Fact Check: $11 Billion Dollar Border Wall Did NOT Blow Down In Hurricane Hanna,Fact Check: $11 Billion Dollar Border Wall Did NOT Blow Down In Hurricane Hanna,"[('eng', 1.0)]",,,
+36,"[(1629350087.0, 'fb')]",Partly false information,47,"(1629405502.0, 'https://colombiacheck.com/chequeos/de-nuevo-de-roux-no-dijo-que-policias-y-soldados-no-estaban-secuestrados-sino-pagando#8c09ff1a31de265207de51d8c147dfe6')",spa,spa,De Roux dijo que policías y soldados secuestrados estaban pagando cárcel,De Roux said that kidnapped policemen and soldiers were serving jail time,"[('spa', 1.0)]","Este sacerdote izquierdozo , es uno de los integrantes de la comisión de la verdad , según los acuerdos de la habana .","This leftist priest is one of the members of the truth commission , according to the Havana accords .","[('spa', 1.0)]","De nuevo, De Roux no dijo que policías y soldados ‘no estaban secuestrados sino pagando cárcel en la selva’","Again, De Roux did not say that police and soldiers ""were not kidnapped but were serving jail in the jungle.""","[('spa', 1.0)]","""Los Soldados y Policías no
+estaban Secuestrados.
+Ellos estaban Pagando Cárcel
+allá en la Selva""
+Francisco de Roux
+Háganme el hp favor!","""Soldiers and policemen do not
+They were kidnapped.
+They were paying jail
+there in the jungle""
+Francis of Roux
+Do me the hp please!","[('spa', 0.851275622844696), ('spa', 0.14872440695762634)]"
+37,"[(1613773263.0, 'fb')]",False information,31,"(1614162540.0, 'https://factcheck.afp.com/photo-shows-anti-government-protest-bucharest-2017-not-2021#c82a2c6044eb82e318824c56f774c359')",kor,eng,Photo shows anti-coronavirus restrictions protest in Bucharest in 2021,Photo shows anti-coronavirus restrictions protest in Bucharest in 2021,"[('eng', 1.0)]",코로나 바이러스를 이용한 정부의 통제에 반발해서 일어난 루마니아 국민들. 국민들이 이 정도만 깨어있어도 좋겠다.,Romanians protested against government controls using the coronavirus. I wish people could just stay awake like this.,"[('kor', 1.0)]","This photo shows an anti-government protest in Bucharest in 2017, not 2021","This photo shows an anti-government protest in Bucharest in 2017, not 2021","[('eng', 1.0)]",,,
+38,"[(1610431026.0, 'fb')]",False information,29,"(1610709600.0, 'https://factcheck.afp.com/social-media-posts-mislead-south-korean-coronavirus-vaccine#a4efffddb8ee919453b86c3a9b4b9fee')",kor,eng,The free Covid-19 vaccines South Korea plans to offer will be from Celltrion.,The free Covid-19 vaccines South Korea plans to offer will be from Celltrion.,"[('eng', 1.0)]",,,,Social media posts mislead on South Korean coronavirus vaccine,Social media posts mislead on South Korean coronavirus vaccine,"[('eng', 1.0)]","2021
+CTIVE
+사
+PONAR
+1044
+다음 달부터 백신 접종 시작전 국민 무료 접종
+보건 복지부.....10번 전화해 어떤 종류의 백신 이냐고
+계속 전화 했더니....솔직히 답하네요
+화이자․모데나.아스트라..........아니고
+무료는 셀트리온 이라고","2021
+CTIVE
+buy
+PONAR
+1044
+Free vaccinations for the public before the start of vaccination starting next month
+Ministry of Health and Welfare.....Call 10 to find out what kind of vaccine
+I kept calling....I answer honestly.
+Pfizer, Modena, Astra....not
+Celltrion for free","[('kor', 0.8895023465156555), ('eng', 0.028071150183677673)]"
+39,"[(1629960123.0, 'fb')]",Partly false information,11,"(1630948200.0, 'https://factual.afp.com/http%253A%252F%252Fdoc.afp.com%252F9MC2V9-1#66e5c18d17332346a0a76d83f05ecec9')",spa,spa,"En agosto de 2021 se registró el primer caso de lambda en México, en Colima","In August 2021, the first case of lambda was registered in Mexico, in Colima","[('spa', 1.0)]","Último momento
+
+Detectan el primer caso de la variante Lambda en México. 
+Exactamente fue en el estado de Colima.
+Se habla de que la variante Lambda es mas peligrosa que la variante Delta.","Last moment
+
+They detect the first case of the Lambda variant in Mexico.
+It was exactly in the state of Colima.
+It is said that the Lambda variant is more dangerous than the Delta variant.","[('spa', 1.0)]",La variante lambda del virus que causa el covid-19 circula en México desde abril de 2021,The lambda variant of the virus that causes covid-19 has been circulating in Mexico since April 2021,"[('spa', 1.0)]",,,
+40,"[(1613014349.0, 'fb')]",,24,"(1613723340.0, 'https://factcheck.afp.com/fabricated-report-falsely-claims-italian-police-arrested-scores-paedophile-cardinals-vatican#151e5c5f58bf67b27df7a9fccdaa5d53')",kor,eng,Italy raided Vatican City and arrested scores of paedophile priests,Italy raided Vatican City and arrested scores of paedophile priests,"[('eng', 1.0)]","{속보}이탈리아 경찰 & 군부대가 바티칸 시를 습격하고 소아성애자 추기경 체포 | UNnews 유엔뉴스 유엔신문
+","{Breaking} Italian Police & Military Units Assault Vatican City and Arrest Pedophile Cardinal | UNnews UN News UN Newspaper
+","[('kor', 1.0)]",Fabricated report falsely claims Italian police 'arrested scores of paedophile cardinals' in Vatican,Fabricated report falsely claims Italian police 'arrested scores of paedophile cardinals' in Vatican,"[('eng', 1.0)]",,,
+41,"[(1614775405.0, 'fb')]",Missing context.,6,"(1615258440.0, 'https://factcheckkorea.afp.com/hoju-nyusauseuweiljeu-maseukeu-yimuhwa-eobsi-korona19-jongsig-seoneonhaessda-sanghwange-ddareun#e64fad7bf14bcde636f2412319b8c73d')",kor,kor,"호주 뉴사우스웨일즈, 마스크 의무화 없이 코로나19 종식 선언했다.","New South Wales, Australia declares an end to COVID-19 without compulsory masks.","[('kor', 1.0)]","코로나는 감기수준도 안돼. 마스크안쓰기 및 자율 운동하자
+
+*호주 인구 제일 많은  NSW주 코로나종식선언. 한 달 째 마스크안쓰고 코로나감염 0,
+*미국 텍사스주 포함 16개주 마스크 자율에 맡김.폄","Corona is not even at the level of a cold. Let's not wear a mask and exercise autonomously
+
+* NSW has the largest population in Australia. Corona infection 0 without wearing a mask for a month,
+* 16 states, including Texas, leave masks to autonomy.","[('kor', 1.0)]","호주 뉴사우스웨일즈, 마스크 의무화 없이 코로나19 종식 선언했다? 상황에 따른 마스크 의무화 시행… 해외유입 신규 감염자 여전히 기록 중","New South Wales, Australia declares an end to COVID-19 without compulsory masks? Enforcement of mandatory mask according to the situation... New infections imported from overseas are still being recorded","[('kor', 1.0)]",,,
+42,"[(1565199899.0, 'fb'), (1574096168.0, 'fb')]",False information,32,"(1577491560.0, 'https://factual.afp.com/el-oso-polar-es-de-peluche-pero-la-especie-es-considerada-vulnerable#3df4efff19eb96e5298b54ff9c7af636')",spa,spa,Un oso polar recién nacido,A newborn polar bear,"[('spa', 1.0)]",Soy un Oso Polar recien nacido y me estoy extinguiendo... pero como no soy un meme no me harás viral...,I'm a newborn Polar Bear and I'm going extinct... but since I'm not a meme you won't make me viral...,"[('spa', 1.0)]","El oso polar es de peluche, pero la especie es considerada vulnerable","The polar bear is cuddly, but the species is considered vulnerable","[('spa', 1.0)]",,,
+43,"[(1520127049.0, 'fb')]",False information,7,"(1583947680.0, 'https://factual.afp.com/el-nino-no-duerme-entre-las-tumbas-de-sus-padres-en-siria-fue-una-puesta-en-escena-de-un-estudiante#bd7b5ff4c9d4f8e7a5721c1b1376888a')",spa,spa,La imagen de un niño sirio que duerme junto a las tumbas de sus padres,The image of a Syrian child who sleeps next to the graves of his parents,"[('spa', 1.0)]","Una vez más, mas naciones miran hacia otro lado, mientras un niño duerme al lado de las tumbas de sus padres muertos en Siria.
+
+La indiferencia del mundo es cómplice de esta tragedia 😢","Once again, more nations look the other way, while a child sleeps next to the graves of his dead parents in Syria.
+
+The indifference of the world is an accomplice to this tragedy 😢","[('spa', 1.0)]","El niño no duerme entre las tumbas de sus padres en Siria, fue una puesta en escena de un estudiante de fotografía","The boy does not sleep between the graves of his parents in Syria, it was a staging by a photography student","[('spa', 1.0)]",,,
+44,"[(1637174252.0, 'fb')]",False information,12,"(1638331200.0, 'https://factcheck.afp.com/http%253A%252F%252Fdoc.afp.com%252F9TA2CC-2#7612cac73309e856298a52d357ab44de')",kor,eng,This video shows an anti-lockdown rally in Austria,This video shows an anti-lockdown rally in Austria,"[('eng', 1.0)]","백신 접종을 하지 않은 사람들의 불법적인 봉쇄에 최대의 힘으로 저항하려고 길로 나온 오스트리아인.
+
+Austrians out in full force resisting and defying the illegal lockdown of non-vaxxinated people.","An Austrian who has gone out of his way to resist the illegal blockade of the unvaccinated with all his might.
+
+Austrians out in full force resisting and defying the illegal lockdown of non-vaxxinated people.","[('kor', 1.0)]","This video shows football fans marching through an Austrian town in 2019, not an anti-lockdown rally","This video shows football fans marching through an Austrian town in 2019, not an anti-lockdown rally","[('eng', 1.0)]",,,
+45,"[(1638298215.0, 'ig')]",,27,"(1639156860.0, 'https://factual.afp.com/http%253A%252F%252Fdoc.afp.com%252F9UE6A3-1#7e4c63ab498248fb40c5b7f44a89890e')",spa,spa,La Comisión Europea pide que se feliciten las fiestas y no la Navidad,The European Commission asks that the holidays be congratulated and not Christmas,"[('spa', 1.0)]","Feliz Navidad a todos!🎄🎅🏻
+
+Y los políticos que no festejan la Navidad que no se tomen vacaciones! 🙊😂","Merry Christmas everyone!🎄🎅🏻
+
+And politicians who don't celebrate Christmas shouldn't take vacations! 🙊😂","[('spa', 1.0)]","El texto de la Comisión Europea sobre las fiestas y la Navidad era de uso interno, y fue retirado","The text of the European Commission on holidays and Christmas was for internal use, and was withdrawn","[('spa', 1.0)]","La Comisión Europea pide que
+se feliciten las ""fiestas"" y no
+""la Navidad"" en nombre de la
+inclusión
+En un comunicado, la Comisión de Igualdad señala que hay","The European Commission asks that
+congratulate the ""holidays"" and not
+""Christmas"" in the name of the
+inclusion
+In a statement, the Equality Commission points out that there are","[('spa', 1.0)]"
+46,"[(1657244401.0, 'fb')]",Missing context,43,"(1612824420.0, 'https://factcheck.afp.com/article-misleads-mercks-decision-drop-covid-19-vaccines#d4dcef159268e3e2bd023564e16a2fb3')",spa,eng,Merck Scraps COVID Vaccines; Says It’s More Effective To Get The Virus And Recover,Merck Scraps COVID Vaccines; Says It’s More Effective To Get The Virus And Recover,"[('eng', 1.0)]","Productora de vacunas Merck ha desistido de seguir desarrollando dos vacunas para el
+coronavirus anunciando que es más efectivo la recuperación natural que la vacuna. #SeVieneMás","Vaccine producer Merck has given up further development of two vaccines for the
+coronavirus announcing that natural recovery is more effective than the vaccine. #SeComesMore","[('spa', 1.0)]",Article misleads on Merck’s decision to drop Covid-19 vaccines,Article misleads on Merck’s decision to drop Covid-19 vaccines,"[('eng', 1.0)]",,,
+46,"[(1657244401.0, 'fb')]",Missing context,1,"(1611619140.0, 'https://healthfeedback.org/claimreview/covid-19-vaccines-currently-in-use-stimulate-immunity-to-the-same-degree-as-natural-infection-without-exposing-the-vaccinated-person-to-the-risks-associated-with-the-disease/#9bb4e8541635c595b6e5072c4dba33c5')",spa,eng,“Merck Scraps COVID Vaccines; Says It’s More Effective To Get The Virus And Recover”,“Merck Scraps COVID Vaccines; Says It’s More Effective To Get The Virus And Recover”,"[('eng', 1.0)]","Productora de vacunas Merck ha desistido de seguir desarrollando dos vacunas para el
+coronavirus anunciando que es más efectivo la recuperación natural que la vacuna. #SeVieneMás","Vaccine producer Merck has given up further development of two vaccines for the
+coronavirus announcing that natural recovery is more effective than the vaccine. #SeComesMore","[('spa', 1.0)]",COVID-19 vaccines currently in use stimulate immunity to the same degree as natural infection without exposing the vaccinated person to the risks associated with the disease,COVID-19 vaccines currently in use stimulate immunity to the same degree as natural infection without exposing the vaccinated person to the risks associated with the disease,"[('eng', 1.0)]",,,
+46,"[(1657244401.0, 'fb')]",Missing context,4,"(1611871602.0, 'https://www.usatoday.com/story/news/factcheck/2021/01/28/fact-check-merck-ends-covid-19-vaccine-work-based-immune-response/4292935001/#c7c5360883b57a936d147c2d6f233857')",spa,eng,U.S. pharmaceutical company Merck said it scrapped its COVID-19 vaccine trials because it was more effective to contract the virus and recover,U.S. pharmaceutical company Merck said it scrapped its COVID-19 vaccine trials because it was more effective to contract the virus and recover,"[('eng', 1.0)]","Productora de vacunas Merck ha desistido de seguir desarrollando dos vacunas para el
+coronavirus anunciando que es más efectivo la recuperación natural que la vacuna. #SeVieneMás","Vaccine producer Merck has given up further development of two vaccines for the
+coronavirus announcing that natural recovery is more effective than the vaccine. #SeComesMore","[('spa', 1.0)]",Fact check: Merck discontinues COVID-19 vaccine work over weak immune response,Fact check: Merck discontinues COVID-19 vaccine work over weak immune response,"[('eng', 1.0)]",,,
