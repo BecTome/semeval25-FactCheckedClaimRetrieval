@@ -11,13 +11,19 @@ def load_dataset(data_folder: str, trial=False) -> tuple:
     - `df_posts`: pd.DataFrame
     - `df_fact_check_post_mapping`: pd.DataFrame
     """
-    prefix = ''
     if trial:
         prefix = 'trial_'
 
-    posts_path = os.path.join(data_folder, prefix + 'posts.csv')
-    fact_checks_path = os.path.join(data_folder, prefix + 'fact_checks.csv')
-    fact_check_post_mapping_path = os.path.join(data_folder, prefix + 'data_mapping.csv')
+        posts_path = os.path.join(data_folder, prefix + 'posts.csv')
+        fact_checks_path = os.path.join(data_folder, prefix + 'fact_checks.csv')
+        fact_check_post_mapping_path = os.path.join(data_folder, prefix + 'data_mapping.csv')
+    else:
+        prefix = ''
+
+        posts_path = os.path.join(data_folder, prefix + 'posts.csv')
+        fact_checks_path = os.path.join(data_folder, prefix + 'fact_checks.csv')
+        fact_check_post_mapping_path = os.path.join(data_folder, prefix + 'pairs.csv')
+
 
     for path in [posts_path, fact_checks_path, fact_check_post_mapping_path]:
         assert os.path.isfile(path)
@@ -49,3 +55,4 @@ def load_dataset(data_folder: str, trial=False) -> tuple:
     df_fact_check_post_mapping = pd.read_csv(fact_check_post_mapping_path) 
 
     return df_fact_checks, df_posts, df_fact_check_post_mapping
+
