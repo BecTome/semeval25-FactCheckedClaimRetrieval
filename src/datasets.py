@@ -87,10 +87,15 @@ class BasePostsDataset(Dataset):
     iter_cols = ['instances', 'ocr', 'verdicts', 'text']
     index_col = "post_id"
 
-    def __init__(self, posts_path, tasks_path, task_name, lang="eng", version=None):
+    def __init__(self, posts_path, tasks_path, task_name, lang="eng", version=None, gs_path=None):
         super().__init__(posts_path, tasks_path, task_name, lang, index_col=self.index_col, iter_cols=self.iter_cols, version=version)
 
+        self.gs_path = gs_path
+        if gs_path:
+            self.load_gs()
+
         self.df_train, self.df_dev = self.get_train_dev(self.df)
+
 
     def preprocess_data(self):
         df_posts = self.load_data()
@@ -104,6 +109,13 @@ class BasePostsDataset(Dataset):
 
         df_posts.drop(columns=["instances"], inplace=True)
         return df_posts
+    
+    def load_gs(self):
+        # group by post_id and get a list of all the fact-checks
+        gs_col = pd.read_csv(self.gs_path).groupby(self.index_col)["fact_check_id"].apply(list).reset_index()
+        gs_col.columns = [self.index_col, "gs"]
+        df_aux = self.df.merge(gs_col, on=self.index_col, how="left")
+        self.df["gs"] = df_aux["gs"].map(lambda x: x if isinstance(x, list) else [])
     
     def get_train_dev(self, df):
         if not self.index_col:
@@ -145,4 +157,3 @@ class BaseFactCheckDataset(Dataset):
     
     def __repr__(self):
         return super().__repr__().replace("Dataset", "BaseFactCheckDataset") + f", Fact Checks: {self.df.shape}"
-    
