@@ -1,5 +1,6 @@
 import ast
 import os
+import json
 
 import pandas as pd
 
@@ -56,3 +57,11 @@ def load_dataset(data_folder: str, trial=False) -> tuple:
 
     return df_fact_checks, df_posts, df_fact_check_post_mapping
 
+def load_task_split(task_path):
+    tasks = json.load(open(task_path))
+
+    for task in tasks:
+        print(task, "---------", list(tasks[task].keys()))
+        for key in tasks[task]:
+            print("\t", key, "---------", list(tasks[task][key])[:10])
+    return tasks
