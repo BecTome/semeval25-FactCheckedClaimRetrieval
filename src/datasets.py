@@ -114,13 +114,14 @@ class BasePostsDataset(Dataset):
         # group by post_id and get a list of all the fact-checks
         gs_col = pd.read_csv(self.gs_path).groupby(self.index_col)["fact_check_id"].apply(list).reset_index()
         gs_col.columns = [self.index_col, "gs"]
-        df_aux = self.df.merge(gs_col, on=self.index_col, how="left")
-        self.df["gs"] = df_aux["gs"].map(lambda x: x if isinstance(x, list) else [])
-    
+        self.df = self.df.reset_index().merge(gs_col, on=self.index_col, how="left").fillna("")
+        self.df["gs"] = self.df["gs"].map(lambda x: x if len(x) > 0 else [])
+        self.df.set_index(self.index_col, inplace=True)
+
     def get_train_dev(self, df):
         if not self.index_col:
             raise ValueError("Index column for split not set (index_col)")
-        return df.loc[self.idx_train, :], df.loc[self.idx_dev, :]
+        return df.loc[self.idx_train, :], df.loc[self.idx_dev, :].drop(columns=["gs"])
     
     def __repr__(self):
         return super().__repr__().replace("Dataset", "BasePostsDataset") + f", Train: {self.df_train.shape}, Dev: {self.df_dev.shape}"
@@ -157,3 +158,20 @@ class BaseFactCheckDataset(Dataset):
     
     def __repr__(self):
         return super().__repr__().replace("Dataset", "BaseFactCheckDataset") + f", Fact Checks: {self.df.shape}"
+    
+
+class TextConcatPosts(BasePostsDataset):
+
+    def preprocess_data(self):
+        df_posts = super().preprocess_data()
+        df_posts["full_text"] = df_posts["ocr"] + " " + df_posts["text"]
+        df_posts["full_text"].str.lower()
+        return df_posts
+    
+class TextConcatFactCheck(BaseFactCheckDataset):
+
+    def preprocess_data(self):
+        df_fact_check = super().preprocess_data()
+        df_fact_check["full_text"] = df_fact_check["title"] + " " + df_fact_check["claim"]
+        df_fact_check["full_text"] = df_fact_check["full_text"].str.lower()
+        return df_fact_check
