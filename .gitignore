@@ -1,2 +1,4 @@
 __pycache__
 data/complete_data
+logs*
+out
