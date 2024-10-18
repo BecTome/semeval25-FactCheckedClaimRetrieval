@@ -4,15 +4,23 @@ import json
 
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 
+from datetime import datetime
 from src.datasets import TextConcatFactCheck, TextConcatPosts
 from src.models import EmbeddingModel
+
+current_time = datetime.now().strftime("%Y%m%d-%H%M%S")
 
 tasks_path = "data/complete_data/tasks.json"
 posts_path = "data/complete_data/posts.csv"
 fact_checks_path = "data/complete_data/fact_checks.csv"
 gs_path = "data/complete_data/pairs.csv"
+output_path = "data/out"
+output_path = os.path.join(output_path, __name__, current_time)
+if not os.path.exists(output_path):
+    os.makedirs(output_path)
+    
 langs = ['fra', 'spa', 'eng', 'por', 'tha', 'deu', 'msa', 'ara']
 model_name = '/home/bsc/bsc830651/.cache/huggingface/hub/models--intfloat--multilingual-e5-large/snapshots/ab10c1a7f42e74530fe7ae5be82e6d4f11a719eb'
 
@@ -31,6 +39,6 @@ model = EmbeddingModel(model_name, df_fc)
 df_posts_dev["preds"] = model.predict(df_posts_dev["full_text"].values).tolist()
 d_out.update(df_posts_dev["preds"].to_dict())
 
-with open("data/out/crosslingual_predictions.json", "w") as f:
+with open(os.path.join(output_path, "crosslingual_predictions.json"), "w") as f:
     json.dump(d_out, f)
 
