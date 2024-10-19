@@ -30,13 +30,23 @@ if not os.path.exists(splits_path):
 # Step 2: Crosslingual processing
 log_info("Starting crosslingual processing...")
 posts_xl = TextConcatPosts(posts_path, original_tasks_path, task_name="crosslingual", gs_path=gs_path)
-idx_train, idxs_dev = get_split_indices_no_gs_overlap(posts_xl.df_train, test_size=test_size, random_state=random_state)
+df_posts_train_xl = posts_xl.df_train
+idx_train, idx_dev = get_split_indices_no_gs_overlap(df_posts_train_xl, test_size=test_size, random_state=random_state)
+
+## Unit Testing
+train_gs = df_posts_train_xl.loc[idx_train, :].explode("gs")["gs"].unique()
+dev_gs = df_posts_train_xl.loc[idx_dev, :].explode("gs")["gs"].unique()
+
+assert len(set(train_gs) & set(dev_gs)) == 0, f"Overlap in GS Train and Dev for Crosslingual"
+assert len(set(idx_train).intersection(set(idx_dev))) == 0, f"Overlap indices Train and Dev for Crosslingual"
+##
 
 new_tasks_xl = posts_xl.tasks["crosslingual"].copy()
 new_tasks_mono = posts_xl.tasks["monolingual"].copy()
 
 new_tasks_xl["posts_train"] = idx_train
-new_tasks_xl["posts_dev"] = idxs_dev
+new_tasks_xl["posts_dev"] = idx_dev
+
 log_info("Crosslingual split created successfully.")
 
 # Step 3: Monolingual processing
@@ -46,12 +56,20 @@ for lan in tqdm(new_tasks_mono.keys()):
     posts = TextConcatPosts(posts_path, original_tasks_path, task_name="monolingual", gs_path=gs_path, lang=lan)
     df_posts_train = posts.df_train
 
-    idx_train, idxs_dev = get_split_indices_no_gs_overlap(df_posts_train, test_size=test_size, random_state=random_state)
+    idx_train, idx_dev = get_split_indices_no_gs_overlap(df_posts_train, test_size=test_size, random_state=random_state)
+    
+    train_gs = df_posts_train.loc[idx_train, :].explode("gs")["gs"].unique()
+    dev_gs = df_posts_train.loc[idx_dev, :].explode("gs")["gs"].unique()
+    
+    ## Unit Testing
+    assert len(set(train_gs) & set(dev_gs)) == 0, f"Overlap in GS Train and Dev for {lan}"
+    assert len(set(idx_train).intersection(set(idx_dev))) == 0, f"Overlap indices Train and Dev for {lan}"
+    ##
     
     new_tasks_mono[lan]["posts_train"] = idx_train
-    new_tasks_mono[lan]["posts_dev"] = idxs_dev
+    new_tasks_mono[lan]["posts_dev"] = idx_dev
     log_info(f"Monolingual split for {lan} completed.")
-
+    
 # Combine new tasks
 new_tasks = {
     "monolingual": new_tasks_mono,
