@@ -133,7 +133,7 @@ class BasePostsDataset(Dataset):
     def get_train_dev(self, df):
         if not self.index_col:
             raise ValueError("Index column for split not set (index_col)")
-        return df.loc[self.idx_train, :], df.loc[self.idx_dev, :].drop(columns=["gs"])
+        return df.loc[self.idx_train, :], df.loc[self.idx_dev, :]#.drop(columns=["gs"])
     
     def __repr__(self):
         return super().__repr__().replace("Dataset", "BasePostsDataset") + f", Train: {self.df_train.shape}, Dev: {self.df_dev.shape}"
