@@ -14,7 +14,7 @@ class EmbeddingModel:
         self.k = k
 
     def encode(self, texts):
-        return torch.tensor(self.model.encode(texts, device="cuda", show_progress_bar=self.show_progress_bar, 
+        return torch.tensor(self.model.encode(texts, device=self.device, show_progress_bar=self.show_progress_bar, 
                                               batch_size=self.batch_size, normalize_embeddings=self.normalize_embeddings))
     
     def similarity(self, emb1, emb2):
