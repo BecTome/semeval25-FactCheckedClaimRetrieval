@@ -20,4 +20,4 @@ source ~/.bashrc  # This reloads the shell to apply conda settings
 
 conda activate factcheck
 
-~/.conda/envs/factcheck/bin/python scripts/monolingual_embeddings.py
+~/.conda/envs/factcheck/bin/python scripts/embeddings_large_e5/train_predict.py
