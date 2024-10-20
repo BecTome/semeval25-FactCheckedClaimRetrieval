@@ -20,7 +20,7 @@ class Dataset:
     """
     def __init__(self, path: str, tasks_path: str, task_name:str, 
                  lang: str="eng", version:str=None, index_col:str=None, 
-                 iter_cols:List[str]=[]):
+                 iter_cols:List[str]=["text", "ocr", "instances"]):
         
         assert task_name in ["monolingual", "crosslingual"]
         self.path = path
@@ -99,6 +99,18 @@ class BasePostsDataset(Dataset):
 
     def preprocess_data(self):
         df_posts = self.load_data()
+        
+        # Get the language of the text in order to stratify the data in crosslingual case
+        text_lan = df_posts["text"].apply(lambda x: x[-1][0][0] if isinstance(x, tuple) else x)
+        ocr_lan = df_posts["ocr"].apply(lambda x: x[0][-1][0][0] if (isinstance(x, list)&len(x)>0) else "")
+        
+        text_lan_simp = text_lan.apply(lambda x: x if (x in self.langs or len(x)==0) else "other")
+        ocr_lan_simp = ocr_lan.apply(lambda x: x if (x in self.langs or len(x)==0) else "other")
+        
+        df_posts["lan"] = text_lan_simp
+        df_posts.loc[text_lan_simp.apply(len) == 0, "lan"] = ocr_lan_simp.loc[text_lan_simp.apply(len) == 0]
+
+
         df_posts["text"] = df_posts["text"].apply(lambda x: x[0] if isinstance(x, tuple) else x)
         df_posts["ocr"] = df_posts["ocr"].apply(lambda x: " ".join(trip[0] for trip in x))
         df_posts["verdicts"] = df_posts["verdicts"].apply(lambda x: x[0] if (isinstance(x, list))&(len(x)>0) else "")
@@ -121,7 +133,7 @@ class BasePostsDataset(Dataset):
     def get_train_dev(self, df):
         if not self.index_col:
             raise ValueError("Index column for split not set (index_col)")
-        return df.loc[self.idx_train, :], df.loc[self.idx_dev, :].drop(columns=["gs"])
+        return df.loc[self.idx_train, :], df.loc[self.idx_dev, :]#.drop(columns=["gs"])
     
     def __repr__(self):
         return super().__repr__().replace("Dataset", "BasePostsDataset") + f", Train: {self.df_train.shape}, Dev: {self.df_dev.shape}"
@@ -161,6 +173,17 @@ class BaseFactCheckDataset(Dataset):
     
 
 class TextConcatPosts(BasePostsDataset):
+    """
+    This class is used to load the fact-check dataset.
+
+    Inputs:
+
+    fact_check_path: Path to the fact-checks
+    tasks_path: Path to the tasks dictionary
+    task_name: Name of the task (monolingual or crosslingual)
+    lang: Language of the dataset (default: eng)
+    version: Version of the dataset (default: None) Options ["english", "original"]
+    """
 
     def preprocess_data(self):
         df_posts = super().preprocess_data()
@@ -169,6 +192,17 @@ class TextConcatPosts(BasePostsDataset):
         return df_posts
     
 class TextConcatFactCheck(BaseFactCheckDataset):
+    """
+    This class is used to load the fact-check dataset.
+
+    Inputs:
+
+    fact_check_path: Path to the fact-checks
+    tasks_path: Path to the tasks dictionary
+    task_name: Name of the task (monolingual or crosslingual)
+    lang: Language of the dataset (default: eng)
+    version: Version of the dataset (default: None) Options ["english", "original"]
+    """
 
     def preprocess_data(self):
         df_fact_check = super().preprocess_data()
