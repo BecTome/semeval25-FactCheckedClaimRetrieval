@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 from encodings import normalize_encoding
-from SimpleITK import namedtuple
 from networkx import hits
 from numpy import cross
 import pandas as pd
@@ -31,7 +30,7 @@ langs = ['fra', 'spa', 'eng', 'por', 'tha', 'deu', 'msa', 'ara']
 trans_model_name = 'sentence-transformers/all-MiniLM-L6-v2'
 cross_model_name = 'cross-encoder/ms-marco-MiniLM-L-6-v2'
 
-device = "cpu"
+device = "cuda"
 
 #check if the embeddings are already computed
 embedings = None
@@ -78,16 +77,19 @@ for lang in tqdm(langs, desc="Languages"):
             queries.append((df_posts_dev["full_text"][i], df_fc["full_text"][hits[i][j]["corpus_id"]]))
     df_fc_top = pd.concat(fc_top_list, axis=0)
     
-    print("Reranking...")
+    print("Reranking...\n")
     crossModel = CrossEncoder(cross_model_name, device=device)
     
-    cross_scores = crossModel.predict(queries, show_progress_bar=True, batch_size=128, convert_to_tensor=True, num_workers=16)
+    cross_scores = crossModel.predict(queries, show_progress_bar=True, batch_size=128, convert_to_tensor=True)
     cross_scores = cross_scores.reshape(len(hits), semantic_k)
     max_scores_idx = cross_scores.topk(k=10, dim=1).indices
 
-    # save the predictions to a json file
-    d_out[lang] = {df_posts_dev["post_id"].iloc[i]: df_fc_top["fact_check_id"].iloc[max_scores_idx[i].tolist()].tolist() for i in range(len(df_posts_dev))}
-    
+    # Save the predictions to a json file
+    print("Saving predictions...\n")
+    d_out[lang] = {
+        int(df_posts_dev["post_id"].iloc[i]): [int(df_fc_top["fact_check_id"].iloc[idx]) for idx in max_scores_idx[i].tolist()]
+        for i in range(len(df_posts_dev))
+    }
     
    # save the embeddings to a json file
     emb_out[lang] = {"fc": emb_fc.tolist(), "posts_train": emb_posts_train.tolist(), "posts_dev": emb_posts_dev.tolist()}
@@ -95,7 +97,8 @@ for lang in tqdm(langs, desc="Languages"):
     
 with open("scripts/all-MimiLM-L6-v2/monolingual_predictions.json", "w") as f:
     json.dump(d_out, f)
-    
-with open("scripts/all-MimiLM-L6-v2/monolingual_embeddings.json", "w") as f:
-    json.dump(emb_out, f)
+
+if not os.path.exists("scripts/all-MimiLM-L6-v2/monolingual_embeddings.json"):
+    with open("scripts/all-MimiLM-L6-v2/monolingual_embeddings.json", "w") as f:
+        json.dump(emb_out, f)
 
