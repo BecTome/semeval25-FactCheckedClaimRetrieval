@@ -1,0 +1,9 @@
+TensorRT
+sentence-transformers
+torch
+SimpleITK
+networkx
+numpy
+pandas
+tqdm
+typing

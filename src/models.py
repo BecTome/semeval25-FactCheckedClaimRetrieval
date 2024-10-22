@@ -74,3 +74,17 @@ class EmbeddingModel(BaseModel):
         # Apply the function element-wise to the array
         vectorized_map = np.vectorize(lambda x: self.pos_to_idx.get(x, None))
         return vectorized_map(idx_sim)
+
+class CrossEncoder(BaseModel):
+    def __init__(self, model_name, df_fc, device="cuda", show_progress_bar=True, batch_size=128, normalize_embeddings=True, k=10):
+        super().__init__(model_name, df_fc, device, show_progress_bar, batch_size, normalize_embeddings, k)
+    
+    def encode(self, texts):
+        return torch.tensor(self.model.encode(texts, device=self.device, show_progress_bar=self.show_progress_bar, 
+                                              batch_size=self.batch_size, normalize_embeddings=self.normalize_embeddings))
+        
+    def similarity(self, emb1, emb2):
+        return torch.mm(emb1, emb2.T).cpu().numpy()
+    
+    def predict(self, texts):
+        pass
