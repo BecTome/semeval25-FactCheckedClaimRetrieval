@@ -124,7 +124,7 @@ class BasePostsDataset(Dataset):
     
     def load_gs(self):
         # group by post_id and get a list of all the fact-checks
-        gs_col = pd.read_csv(self.gs_path).groupby(self.index_col)["fact_check_id"].apply(list).reset_index()
+        gs_col = pd.read_csv(str(self.gs_path)).groupby(self.index_col)["fact_check_id"].apply(list).reset_index()
         gs_col.columns = [self.index_col, "gs"]
         self.df = self.df.reset_index().merge(gs_col, on=self.index_col, how="left").fillna("")
         self.df["gs"] = self.df["gs"].map(lambda x: x if len(x) > 0 else [])
