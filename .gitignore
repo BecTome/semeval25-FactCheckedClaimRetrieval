@@ -5,3 +5,5 @@ out
 .vscode
 finalData
 output
+.venv
+monolingual_embeddings.json
