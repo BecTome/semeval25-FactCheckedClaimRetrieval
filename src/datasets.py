@@ -19,16 +19,20 @@ class Dataset:
     iter_cols: Columns that need to be iterated over (default: []) Important for preprocessing the dataset
     """
     def __init__(self, path: str, tasks_path: str, task_name:str, 
-                 lang: str="eng", version:str=None, index_col:str=None, 
+                 lang: str="eng", version:str="original", index_col:str=None, 
                  iter_cols:List[str]=["text", "ocr", "instances"]):
         
         assert task_name in ["monolingual", "crosslingual"]
+        assert version in ["english", "original"]
+        
         self.path = path
         self.task_name = task_name
         self.tasks_path = tasks_path
         self.lang = lang
         self.index_col = index_col
         self.iter_cols = iter_cols
+        self.version = version
+        self.idx_lang = 0 if self.version == "original" else 1
 
         # Load tasks dictionary
         self.tasks = self.load_tasks()
@@ -39,6 +43,7 @@ class Dataset:
         self.idx_train, self.idx_dev = d_lan["posts_train"], d_lan["posts_dev"]
         self.idx_fc = d_lan["fact_checks"]
 
+        # Be careful, it doesn't filter by language
         self.df = self.preprocess_data()
 
     @staticmethod
@@ -115,11 +120,10 @@ class BasePostsDataset(Dataset):
         
         df_posts["lan"] = text_lan_simp
         df_posts.loc[text_lan_simp.apply(len) == 0, "lan"] = ocr_lan_simp.loc[text_lan_simp.apply(len) == 0]
-
-
-        df_posts["text"] = df_posts["text"].apply(lambda x: x[0] if isinstance(x, tuple) else x)
-        df_posts["ocr"] = df_posts["ocr"].apply(lambda x: " ".join(trip[0] for trip in x))
-        df_posts["verdicts"] = df_posts["verdicts"].apply(lambda x: x[0] if (isinstance(x, list))&(len(x)>0) else "")
+        
+        df_posts["text"] = df_posts["text"].apply(lambda x: x[self.idx_lang] if isinstance(x, tuple) else x)
+        df_posts["ocr"] = df_posts["ocr"].apply(lambda x: " ".join(trip[self.idx_lang] for trip in x))
+        df_posts["verdicts"] = df_posts["verdicts"].apply(lambda x: x[self.idx_lang] if (isinstance(x, list))&(len(x)>0) else "")
         df_posts["instances"] = df_posts["instances"].apply(lambda x: [social for _, social in x] if len(x)>0 else [])
         df_posts["fb"] = df_posts["instances"].apply(lambda x: np.sum(np.array(x)=="fb"))
         df_posts["tw"] = df_posts["instances"].apply(lambda x: np.sum(np.array(x)=="tw"))
@@ -169,8 +173,8 @@ class BaseFactCheckDataset(Dataset):
 
     def preprocess_data(self):
         df_fact_check = self.load_data(indices=self.idx_fc)
-        df_fact_check["claim"] = df_fact_check["claim"].apply(lambda x: x[0] if isinstance(x, tuple) else x)
-        df_fact_check["title"] = df_fact_check["title"].apply(lambda x: x[0] if isinstance(x, tuple) else x)
+        df_fact_check["claim"] = df_fact_check["claim"].apply(lambda x: x[self.idx_lang] if isinstance(x, tuple) else x)
+        df_fact_check["title"] = df_fact_check["title"].apply(lambda x: x[self.idx_lang] if isinstance(x, tuple) else x)
         df_fact_check["instances"] = df_fact_check["instances"].apply(lambda x: [url for _, url in x] if len(x)>0 else [])
         return df_fact_check
     
