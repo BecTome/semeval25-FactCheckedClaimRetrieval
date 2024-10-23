@@ -45,17 +45,23 @@ class Dataset:
     def get_if_exists(dict, key):
         return dict[key] if key in dict else dict
     
-    def load_data(self):
+    def load_data(self, indices=None):
         if self.index_col is None:
             df = pd.read_csv(self.path).fillna('')
         else:
             df = pd.read_csv(self.path).fillna('').set_index(self.index_col)
+        
+        if indices is not None:
+            df = df.loc[indices, :]
         
         parse_col = lambda s: ast.literal_eval(s.replace('\n', '\\n')) if s else s
         for col in self.iter_cols:
             df[col] = df[col].apply(parse_col)
 
         return df
+    
+    def __len__(self):
+        return len(self.df)
 
     def load_tasks(self):
         return json.load(open(self.tasks_path))
@@ -159,10 +165,10 @@ class BaseFactCheckDataset(Dataset):
     def __init__(self, fact_check_path, tasks_path, task_name, lang="eng", version=None):
         super().__init__(fact_check_path, tasks_path, task_name, lang, index_col=self.index_col, iter_cols=self.iter_cols, version=version)
         self.df = self.preprocess_data()
-        self.df = self.df.loc[self.idx_fc, :]
+        # self.df = self.df.loc[self.idx_fc, :]
 
     def preprocess_data(self):
-        df_fact_check = self.load_data()
+        df_fact_check = self.load_data(indices=self.idx_fc)
         df_fact_check["claim"] = df_fact_check["claim"].apply(lambda x: x[0] if isinstance(x, tuple) else x)
         df_fact_check["title"] = df_fact_check["title"].apply(lambda x: x[0] if isinstance(x, tuple) else x)
         df_fact_check["instances"] = df_fact_check["instances"].apply(lambda x: [url for _, url in x] if len(x)>0 else [])
