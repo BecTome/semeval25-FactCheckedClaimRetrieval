@@ -7,7 +7,6 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 
 from src.datasets import TextConcatFactCheck, TextConcatPosts
-from src.models import EmbeddingModel
 
 tasks_path = "data/splits/tasks_no_gs_overlap.json"
 posts_path = "data/complete_data/posts.csv"

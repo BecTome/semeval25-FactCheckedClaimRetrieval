@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from encodings import normalize_encoding
+from multiprocessing import process
 from networkx import hits
 from numpy import cross
 import pandas as pd
@@ -25,12 +26,17 @@ tasks_path = "data/splits/tasks_no_gs_overlap.json"
 posts_path = "data/complete_data/posts.csv"
 fact_checks_path = "data/complete_data/fact_checks.csv"
 gs_path = "data/complete_data/pairs.csv"
+
+# if available
 embedings_path = "scripts/all-MimiLM-L6-v2/monolingual_embeddings.json"
+processed_data_path = "scripts/all-MimiLM-L6-v2/processedData"
+
 langs = ['fra', 'spa', 'eng', 'por', 'tha', 'deu', 'msa', 'ara']
 trans_model_name = 'sentence-transformers/all-MiniLM-L6-v2'
 cross_model_name = 'cross-encoder/ms-marco-MiniLM-L-6-v2'
 
-device = "cuda"
+# check if cuda is available, if not use cpu
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 #check if the embeddings are already computed
 embedings = None
@@ -46,13 +52,17 @@ emb_out = {}
 for lang in tqdm(langs, desc="Languages"):
     
     print(f"Processing language: {lang}")
-    # posts = TextConcatPosts(posts_path, tasks_path, task_name="monolingual", gs_path=gs_path, lang=lang)
-    # fact_checks = TextConcatFactCheck(fact_checks_path, tasks_path, task_name="monolingual", lang=lang)
     
-    df_fc = pd.read_csv(f"scripts/all-MimiLM-L6-v2/processedData/fact_checks_{lang}.csv")
-    df_posts_train = pd.read_csv(f"scripts/all-MimiLM-L6-v2/processedData/posts_train_{lang}.csv")
-    df_posts_dev = pd.read_csv(f"scripts/all-MimiLM-L6-v2/processedData/posts_dev_{lang}.csv")
-    
+    if not os.path.isdir(processed_data_path):
+        posts = TextConcatPosts(posts_path, tasks_path, task_name="monolingual", gs_path=gs_path, lang=lang)
+        fact_checks = TextConcatFactCheck(fact_checks_path, tasks_path, task_name="monolingual", lang=lang)
+        print(f"Data processed! for language {lang}\n")
+    else:
+        df_fc = pd.read_csv(f"scripts/all-MimiLM-L6-v2/processedData/fact_checks_{lang}.csv")
+        df_posts_train = pd.read_csv(f"scripts/all-MimiLM-L6-v2/processedData/posts_train_{lang}.csv")
+        df_posts_dev = pd.read_csv(f"scripts/all-MimiLM-L6-v2/processedData/posts_dev_{lang}.csv")
+        print(f"Data loaded! for language {lang}\n")
+            
     if embedings is not None:
         emb_fc = torch.Tensor(embedings[lang]["fc"]).to(device)
         emb_posts_train = torch.Tensor(embedings[lang]["posts_train"]).to(device)
