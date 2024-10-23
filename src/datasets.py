@@ -187,7 +187,7 @@ class TextConcatPosts(BasePostsDataset):
 
     def preprocess_data(self):
         df_posts = super().preprocess_data()
-        df_posts["full_text"] = df_posts["ocr"] + " " + df_posts["text"]
+        df_posts["full_text"] = df_posts["ocr"] + "[SEP]" + df_posts["text"]
         df_posts["full_text"].str.lower()
         return df_posts
     
@@ -206,6 +206,6 @@ class TextConcatFactCheck(BaseFactCheckDataset):
 
     def preprocess_data(self):
         df_fact_check = super().preprocess_data()
-        df_fact_check["full_text"] = df_fact_check["title"] + " " + df_fact_check["claim"]
+        df_fact_check["full_text"] = df_fact_check["title"] + "[SEP]" + df_fact_check["claim"]
         df_fact_check["full_text"] = df_fact_check["full_text"].str.lower()
         return df_fact_check

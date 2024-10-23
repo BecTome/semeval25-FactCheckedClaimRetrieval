@@ -32,7 +32,8 @@ embedings_path = "scripts/all-MimiLM-L6-v2/monolingual_embeddings.json"
 processed_data_path = "scripts/all-MimiLM-L6-v2/processedData"
 
 langs = ['fra', 'spa', 'eng', 'por', 'tha', 'deu', 'msa', 'ara']
-trans_model_name = 'sentence-transformers/all-MiniLM-L6-v2'
+#trans_model_name = 'sentence-transformers/all-MiniLM-L6-v2'
+trans_model_name = 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2'
 cross_model_name = 'cross-encoder/ms-marco-MiniLM-L-6-v2'
 
 # check if cuda is available, if not use cpu
@@ -68,6 +69,7 @@ for lang in tqdm(langs, desc="Languages"):
         emb_posts_train = torch.Tensor(embedings[lang]["posts_train"]).to(device)
         emb_posts_dev = torch.Tensor(embedings[lang]["posts_dev"]).to(device)
     else:
+        print("Computing embeddings...\n")
         sentTransModel = SentenceTransformer(trans_model_name, device=device)
         
         emb_fc = sentTransModel.encode(df_fc["full_text"].values.tolist(), show_progress_bar=True, normalize_embeddings=True, batch_size=int(128), convert_to_tensor=True)
@@ -76,7 +78,7 @@ for lang in tqdm(langs, desc="Languages"):
     
     print("Computing semantic search...\n")
     semantic_k = 100
-    hits = util.semantic_search(emb_posts_dev, emb_fc, top_k=semantic_k)
+    hits = util.semantic_search(emb_posts_dev, emb_fc, top_k=semantic_k,)
     
     # create query by putting in a tuple() the post text and the top 100 fact check text
     queries = []
@@ -93,7 +95,6 @@ for lang in tqdm(langs, desc="Languages"):
     cross_scores = crossModel.predict(queries, show_progress_bar=True, batch_size=128, convert_to_tensor=True)
     cross_scores = cross_scores.reshape(len(hits), semantic_k)
     max_scores_idx = cross_scores.topk(k=10, dim=1).indices
-    print(max_scores_idx)
 
     # Save the predictions to a json file
     print("Saving predictions...\n")
