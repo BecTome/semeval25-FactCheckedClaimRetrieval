@@ -24,10 +24,10 @@ for lang in langs:
     for post_id in langpreds.keys():
         # Get the predicted fact-check for the current post
         pred_factchecks = langpreds[post_id]
-        # print(pred_factcheck)
+        
         # Get the actual fact-check for the current post
         actual_factchecks = ground_truth[(ground_truth['post_id'] == int(post_id))]['fact_check_id']
-        # print(len(actual_factchecks))
+        
         # Check if any of the actual fact-checks match any of the predicted fact-checks
         for actual_factcheck in actual_factchecks:
             if actual_factcheck in pred_factchecks:
