@@ -36,7 +36,7 @@ trans_model_name = 'sentence-transformers/all-MiniLM-L6-v2'
 cross_model_name = 'cross-encoder/ms-marco-MiniLM-L-6-v2'
 
 # check if cuda is available, if not use cpu
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
 #check if the embeddings are already computed
 embedings = None
@@ -70,9 +70,9 @@ for lang in tqdm(langs, desc="Languages"):
     else:
         sentTransModel = SentenceTransformer(trans_model_name, device=device)
         
-        emb_fc = sentTransModel.encode(df_fc["full_text"].values, show_progress_bar=True, normalize_embeddings=True, batch_size=int(128), convert_to_tensor=True)
-        emb_posts_train = sentTransModel.encode(df_posts_train["full_text"].values, show_progress_bar=True, normalize_embeddings=True, batch_size=int(128), convert_to_tensor=True)
-        emb_posts_dev = sentTransModel.encode(df_posts_dev["full_text"].values, show_progress_bar=True, normalize_embeddings=True, batch_size=int(128), convert_to_tensor=True)
+        emb_fc = sentTransModel.encode(df_fc["full_text"].values.tolist(), show_progress_bar=True, normalize_embeddings=True, batch_size=int(128), convert_to_tensor=True)
+        emb_posts_train = sentTransModel.encode(df_posts_train["full_text"].values.tolist(), show_progress_bar=True, normalize_embeddings=True, batch_size=int(128), convert_to_tensor=True)
+        emb_posts_dev = sentTransModel.encode(df_posts_dev["full_text"].values.tolist(), show_progress_bar=True, normalize_embeddings=True, batch_size=int(128), convert_to_tensor=True)
     
     print("Computing semantic search...\n")
     semantic_k = 100
