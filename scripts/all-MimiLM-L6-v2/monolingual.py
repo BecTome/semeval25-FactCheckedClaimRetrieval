@@ -84,7 +84,7 @@ for lang in tqdm(langs, desc="Languages"):
     for i in range(len(hits)):
         for j in range(len(hits[i])):
             fc_top_list.append(df_fc.iloc[hits[i][j]["corpus_id"]])
-            queries.append((df_posts_dev["full_text"][i], df_fc["full_text"][hits[i][j]["corpus_id"]]))
+            queries.append((df_posts_dev["full_text"].iloc[i], df_fc["full_text"].iloc[hits[i][j]["corpus_id"]]))
     df_fc_top = pd.concat(fc_top_list, axis=0)
     
     print("Reranking...\n")
@@ -93,6 +93,7 @@ for lang in tqdm(langs, desc="Languages"):
     cross_scores = crossModel.predict(queries, show_progress_bar=True, batch_size=128, convert_to_tensor=True)
     cross_scores = cross_scores.reshape(len(hits), semantic_k)
     max_scores_idx = cross_scores.topk(k=10, dim=1).indices
+    print(max_scores_idx)
 
     # Save the predictions to a json file
     print("Saving predictions...\n")
