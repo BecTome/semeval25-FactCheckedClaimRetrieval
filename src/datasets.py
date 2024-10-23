@@ -4,6 +4,7 @@ from abc import abstractmethod
 import numpy as np
 from typing import List
 import pandas as pd
+import emoji
 
 class Dataset:
     """
@@ -185,10 +186,12 @@ class TextConcatPosts(BasePostsDataset):
     version: Version of the dataset (default: None) Options ["english", "original"]
     """
 
-    def preprocess_data(self):
+    def preprocess_data(self, demojize=True):
         df_posts = super().preprocess_data()
         df_posts["full_text"] = df_posts["ocr"] + "[SEP]" + df_posts["text"]
         df_posts["full_text"].str.lower()
+        if demojize:
+            df_posts["full_text"] = df_posts["full_text"].apply(lambda x: emoji.demojize(x))
         return df_posts
     
 class TextConcatFactCheck(BaseFactCheckDataset):
@@ -204,8 +207,11 @@ class TextConcatFactCheck(BaseFactCheckDataset):
     version: Version of the dataset (default: None) Options ["english", "original"]
     """
 
-    def preprocess_data(self):
+    def preprocess_data(self, demojize=True):
         df_fact_check = super().preprocess_data()
         df_fact_check["full_text"] = df_fact_check["title"] + "[SEP]" + df_fact_check["claim"]
         df_fact_check["full_text"] = df_fact_check["full_text"].str.lower()
+        if demojize:
+            df_fact_check["full_text"] = df_fact_check["full_text"].apply(lambda x: emoji.demojize(x))
         return df_fact_check
+    

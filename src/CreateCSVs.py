@@ -6,7 +6,7 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 
-from src.datasets import TextConcatFactCheck, TextConcatPosts
+from datasets import TextConcatFactCheck, TextConcatPosts
 
 tasks_path = "data/splits/tasks_no_gs_overlap.json"
 posts_path = "data/complete_data/posts.csv"
