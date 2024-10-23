@@ -77,7 +77,7 @@ for lang in tqdm(langs, desc="Languages"):
         emb_posts_dev = sentTransModel.encode(df_posts_dev["full_text"].values.tolist(), show_progress_bar=True, normalize_embeddings=True, batch_size=int(128), convert_to_tensor=True)
     
     print("Computing semantic search...\n")
-    semantic_k = 100
+    semantic_k = 200
     hits = util.semantic_search(emb_posts_dev, emb_fc, top_k=semantic_k,)
     
     # create query by putting in a tuple() the post text and the top 100 fact check text

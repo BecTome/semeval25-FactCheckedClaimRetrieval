@@ -186,9 +186,9 @@ class TextConcatPosts(BasePostsDataset):
     version: Version of the dataset (default: None) Options ["english", "original"]
     """
 
-    def preprocess_data(self, demojize=True):
+    def preprocess_data(self, demojize=True, prefix=""):
         df_posts = super().preprocess_data()
-        df_posts["full_text"] = df_posts["ocr"] + "[SEP]" + df_posts["text"]
+        df_posts["full_text"] = prefix + df_posts["ocr"] + "[SEP]" + df_posts["text"]
         df_posts["full_text"].str.lower()
         if demojize:
             df_posts["full_text"] = df_posts["full_text"].apply(lambda x: emoji.demojize(x))
@@ -207,9 +207,9 @@ class TextConcatFactCheck(BaseFactCheckDataset):
     version: Version of the dataset (default: None) Options ["english", "original"]
     """
 
-    def preprocess_data(self, demojize=True):
+    def preprocess_data(self, demojize=True, prefix=""):
         df_fact_check = super().preprocess_data()
-        df_fact_check["full_text"] = df_fact_check["title"] + "[SEP]" + df_fact_check["claim"]
+        df_fact_check["full_text"] = prefix + df_fact_check["title"] + "[SEP]" + df_fact_check["claim"]
         df_fact_check["full_text"] = df_fact_check["full_text"].str.lower()
         if demojize:
             df_fact_check["full_text"] = df_fact_check["full_text"].apply(lambda x: emoji.demojize(x))
