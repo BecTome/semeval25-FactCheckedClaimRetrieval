@@ -185,12 +185,18 @@ class TextConcatPosts(BasePostsDataset):
     lang: Language of the dataset (default: eng)
     version: Version of the dataset (default: None) Options ["english", "original"]
     """
+    
+    def __init__(self, posts_path, tasks_path, task_name, lang="eng", version=None, gs_path=None, demojize=False, prefix=""):
+        self.demojize = demojize
+        self.prefix = prefix
+        super().__init__(posts_path, tasks_path, task_name, lang, version, gs_path)
+    
 
-    def preprocess_data(self, demojize=True, prefix=""):
+    def preprocess_data(self):
         df_posts = super().preprocess_data()
-        df_posts["full_text"] = prefix + df_posts["ocr"] + "[SEP]" + df_posts["text"]
+        df_posts["full_text"] = self.prefix + df_posts["ocr"] + "[SEP]" + df_posts["text"]
         df_posts["full_text"].str.lower()
-        if demojize:
+        if self.demojize:
             df_posts["full_text"] = df_posts["full_text"].apply(lambda x: emoji.demojize(x))
         return df_posts
     
@@ -206,12 +212,17 @@ class TextConcatFactCheck(BaseFactCheckDataset):
     lang: Language of the dataset (default: eng)
     version: Version of the dataset (default: None) Options ["english", "original"]
     """
+    
+    def __init__(self, fact_check_path, tasks_path, task_name, lang="eng", version=None, demojize=False, prefix=""):
+        self.demojize = demojize
+        self.prefix = prefix
+        super().__init__(fact_check_path, tasks_path, task_name, lang, version)
 
-    def preprocess_data(self, demojize=True, prefix=""):
+    def preprocess_data(self):
         df_fact_check = super().preprocess_data()
-        df_fact_check["full_text"] = prefix + df_fact_check["title"] + "[SEP]" + df_fact_check["claim"]
+        df_fact_check["full_text"] = self.prefix + df_fact_check["title"] + "[SEP]" + df_fact_check["claim"]
         df_fact_check["full_text"] = df_fact_check["full_text"].str.lower()
-        if demojize:
+        if self.demojize:
             df_fact_check["full_text"] = df_fact_check["full_text"].apply(lambda x: emoji.demojize(x))
         return df_fact_check
     

@@ -17,8 +17,8 @@ langs = ['fra', 'spa', 'eng', 'por', 'tha', 'deu', 'msa', 'ara']
 
 for lang in tqdm(langs, desc="Languages", ):
     
-    posts = TextConcatPosts(posts_path, tasks_path, task_name="monolingual", gs_path=gs_path, lang=lang)
-    fact_checks = TextConcatFactCheck(fact_checks_path, tasks_path, task_name="monolingual", lang=lang)
+    posts = TextConcatPosts(posts_path, tasks_path, task_name="monolingual", gs_path=gs_path, lang=lang, prefix="query: ")
+    fact_checks = TextConcatFactCheck(fact_checks_path, tasks_path, task_name="monolingual", lang=lang, prefix="passage: ")
         
     fact_checks.df.to_csv(f"{out_path}fact_checks_{lang}.csv")
     posts.df_train.to_csv(f"{out_path}posts_train_{lang}.csv")
