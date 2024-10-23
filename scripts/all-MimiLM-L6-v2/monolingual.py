@@ -72,39 +72,60 @@ for lang in tqdm(langs, desc="Languages"):
         print("Computing embeddings...\n")
         sentTransModel = SentenceTransformer(trans_model_name, device=device)
         
-        emb_fc = sentTransModel.encode(df_fc["full_text"].values.tolist(), show_progress_bar=True, normalize_embeddings=True, batch_size=int(128), convert_to_tensor=True)
-        emb_posts_train = sentTransModel.encode(df_posts_train["full_text"].values.tolist(), show_progress_bar=True, normalize_embeddings=True, batch_size=int(128), convert_to_tensor=True)
-        emb_posts_dev = sentTransModel.encode(df_posts_dev["full_text"].values.tolist(), show_progress_bar=True, normalize_embeddings=True, batch_size=int(128), convert_to_tensor=True)
+        emb_fc = sentTransModel.encode(df_fc["full_text"].values.tolist(), 
+                                       show_progress_bar=True, 
+                                       normalize_embeddings=True, 
+                                       batch_size=int(128), 
+                                       convert_to_tensor=True,
+                                       prompt="passage: ")
+        emb_posts_train = sentTransModel.encode(df_posts_train["full_text"].values.tolist(), 
+                                                show_progress_bar=True, 
+                                                normalize_embeddings=True, 
+                                                batch_size=int(128), 
+                                                convert_to_tensor=True,
+                                                prompt="query: ")
+        emb_posts_dev = sentTransModel.encode(df_posts_dev["full_text"].values.tolist(), 
+                                              show_progress_bar=True, 
+                                              normalize_embeddings=True, 
+                                              batch_size=int(128), 
+                                              convert_to_tensor=True,
+                                              prompt="query: ")
     
     print("Computing semantic search...\n")
-    semantic_k = 200
-    hits = util.semantic_search(emb_posts_dev, emb_fc, top_k=semantic_k,)
+    semantic_k = 10
+    hits = util.semantic_search(emb_posts_dev, emb_fc, top_k=semantic_k)
     
-    # create query by putting in a tuple() the post text and the top 100 fact check text
-    queries = []
-    fc_top_list = []
-    for i in range(len(hits)):
-        for j in range(len(hits[i])):
-            fc_top_list.append(df_fc.iloc[hits[i][j]["corpus_id"]])
-            queries.append((df_posts_dev["full_text"].iloc[i], df_fc["full_text"].iloc[hits[i][j]["corpus_id"]]))
-    df_fc_top = pd.concat(fc_top_list, axis=0)
-    
-    print("Reranking...\n")
-    crossModel = CrossEncoder(cross_model_name, device=device)
-    
-    cross_scores = crossModel.predict(queries, show_progress_bar=True, batch_size=128, convert_to_tensor=True)
-    cross_scores = cross_scores.reshape(len(hits), semantic_k)
-    max_scores_idx = cross_scores.topk(k=10, dim=1).indices
-
-    # Save the predictions to a json file
-    print("Saving predictions...\n")
     d_out[lang] = {
-        int(df_posts_dev["post_id"].iloc[i]): [int(df_fc_top["fact_check_id"].iloc[idx]) for idx in max_scores_idx[i].tolist()]
-        for i in range(len(df_posts_dev))
+        int(df_posts_dev["post_id"].iloc[i]): [int(df_fc["fact_check_id"].iloc[dic["corpus_id"]]) for dic in hits[i]]
+        for i in range(len(hits))
     }
     
+    
+    # # create query by putting in a tuple() the post text and the top 100 fact check text
+    # queries = []
+    # fc_top_list = []
+    # for i in range(len(hits)):
+    #     for j in range(len(hits[i])):
+    #         fc_top_list.append(df_fc.iloc[hits[i][j]["corpus_id"]])
+    #         queries.append((df_posts_dev["full_text"].iloc[i], df_fc["full_text"].iloc[hits[i][j]["corpus_id"]]))
+    # df_fc_top = pd.concat(fc_top_list, axis=0)
+    
+    # print("Reranking...\n")
+    # crossModel = CrossEncoder(cross_model_name, device=device)
+    
+    # cross_scores = crossModel.predict(queries, show_progress_bar=True, batch_size=128, convert_to_tensor=True)
+    # cross_scores = cross_scores.reshape(len(hits), semantic_k)
+    # max_scores_idx = cross_scores.topk(k=10, dim=1).indices
+
+    # # Save the predictions to a json file
+    # print("Saving predictions...\n")
+    # d_out[lang] = {
+    #     int(df_posts_dev["post_id"].iloc[i]): [int(df_fc_top["fact_check_id"].iloc[idx]) for idx in max_scores_idx[i].tolist()]
+    #     for i in range(len(df_posts_dev))
+    # }
+    
    # save the embeddings to a json file
-    emb_out[lang] = {"fc": emb_fc.tolist(), "posts_train": emb_posts_train.tolist(), "posts_dev": emb_posts_dev.tolist()}
+    # emb_out[lang] = {"fc": emb_fc.tolist(), "posts_train": emb_posts_train.tolist(), "posts_dev": emb_posts_dev.tolist()}
     
     
 with open("scripts/all-MimiLM-L6-v2/monolingual_predictions.json", "w") as f:
