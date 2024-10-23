@@ -1,4 +1,4 @@
-from sentence_transformers import SentenceTransformer
+from sentence_transformers import SentenceTransformer, CrossEncoder
 import torch
 import numpy as np
 from abc import abstractmethod
@@ -6,14 +6,10 @@ import json
 import os
 
 class BaseModel:
-    def __init__(self, model_name, df_fc, device="cuda", show_progress_bar=True, batch_size=128, normalize_embeddings=True, k=10):
-        self.model = SentenceTransformer(model_name, device=device)
+    def __init__(self, device="cuda", show_progress_bar=True, batch_size=128, k=10):
         self.device = device
         self.show_progress_bar = show_progress_bar
         self.batch_size = batch_size
-        self.normalize_embeddings = normalize_embeddings
-        self.emb_fc = self.encode(df_fc["full_text"].values)
-        self.pos_to_idx = {pos: idx for pos, idx in enumerate(df_fc.index)}
         self.k = k
     
     @abstractmethod
@@ -40,14 +36,15 @@ class BaseModel:
         if task_name == "crosslingual":
             lang = f"eng"
             
-        d_eval = {task_name: {lang: {"group": {}, "individual": {}}}}
-        
+        # d_eval = {task_name: {lang: {"group": {}, "individual": {}}}}
+        d_eval = {task_name: {lang: {}}}
+
         if df_eval is None:
             df_eval = self.df.copy()
             
         for k in ls_k:
-            d_eval[task_name][lang]["group"][k] = df_eval.apply(lambda x: len(list((set(x["preds"][:k]) & set(x["gs"])))) > 0, axis=1).mean()
-            d_eval[task_name][lang]["individual"][k] = df_eval.explode("gs").apply(lambda x: x["gs"] in x["preds"][:k], axis=1).mean()
+            d_eval[task_name][lang][k] = df_eval.apply(lambda x: len(list((set(x["preds"][:k]) & set(x["gs"])))) > 0, axis=1).mean()
+            # d_eval[task_name][lang]["individual"][k] = df_eval.explode("gs").apply(lambda x: x["gs"] in x["preds"][:k], axis=1).mean()
 
         # if output_folder is not None:
         #     eval_filename = "evaluation.json"
@@ -58,11 +55,19 @@ class BaseModel:
 
 class EmbeddingModel(BaseModel):
     def __init__(self, model_name, df_fc, device="cuda", show_progress_bar=True, batch_size=128, normalize_embeddings=True, k=10):
-        super().__init__(model_name, df_fc, device, show_progress_bar, batch_size, normalize_embeddings, k)
+        super().__init__(device, show_progress_bar, batch_size, k)
+        self.model = SentenceTransformer(model_name, device=device)
+        self.normalize_embeddings = normalize_embeddings
+        self.emb_fc = self.encode(df_fc["full_text"].values)
+        self.pos_to_idx = {pos: idx for pos, idx in enumerate(df_fc.index)}
+
 
     def encode(self, texts):
-        return torch.tensor(self.model.encode(texts, device=self.device, show_progress_bar=self.show_progress_bar, 
-                                              batch_size=self.batch_size, normalize_embeddings=self.normalize_embeddings))
+        return torch.tensor(self.model.encode(texts, show_progress_bar=self.show_progress_bar, 
+                                              batch_size=self.batch_size, normalize_embeddings=self.normalize_embeddings)) #  device=self.device,
+        
+    def train(self, texts):
+        pass
     
     def similarity(self, emb1, emb2):
         return torch.mm(emb1, emb2.T).cpu().numpy()
@@ -74,3 +79,25 @@ class EmbeddingModel(BaseModel):
         # Apply the function element-wise to the array
         vectorized_map = np.vectorize(lambda x: self.pos_to_idx.get(x, None))
         return vectorized_map(idx_sim)
+    
+
+class CrossencoderModel(BaseModel):
+    '''
+    Given a text and a list of candidate positions (cands_list), this model ranks the candidates based on the similarity with the text.
+    Returns the top-k candidates in form of fact_check_ids
+    '''
+    def __init__(self, model_name, df_fc, device="cuda", show_progress_bar=True, batch_size=128, k=10, **kwargs):
+        self.model = CrossEncoder(model_name, device=device, **kwargs)
+        self.idx_to_text = df_fc["full_text"].to_dict()
+        self.vectorized_map = np.vectorize(lambda x: self.idx_to_text.get(x, None))        
+        super().__init__(device, show_progress_bar, batch_size, k)
+
+    def train(self, texts):
+        pass
+    
+    def predict(self, post, cands_list):
+        # df_posts_dev["preds"] = df_posts_dev.apply(lambda x:cross_model.predict(x["full_text"], x["preds"]), axis=1)
+        cands_list_text = self.vectorized_map(cands_list)
+        pos_ids = self.model.rank(post, cands_list_text, show_progress_bar=self.show_progress_bar, batch_size=self.batch_size, top_k=self.k, convert_to_numpy=True)
+        pos_ids = [pos_id["corpus_id"] for pos_id in pos_ids]
+        return np.array(cands_list)[pos_ids]
