@@ -4,6 +4,7 @@ from abc import abstractmethod
 import numpy as np
 from typing import List
 import pandas as pd
+import emoji
 
 class Dataset:
     """
@@ -134,7 +135,7 @@ class BasePostsDataset(Dataset):
     
     def load_gs(self):
         # group by post_id and get a list of all the fact-checks
-        gs_col = pd.read_csv(self.gs_path).groupby(self.index_col)["fact_check_id"].apply(list).reset_index()
+        gs_col = pd.read_csv(str(self.gs_path)).groupby(self.index_col)["fact_check_id"].apply(list).reset_index()
         gs_col.columns = [self.index_col, "gs"]
         self.df = self.df.reset_index().merge(gs_col, on=self.index_col, how="left").fillna("")
         self.df["gs"] = self.df["gs"].map(lambda x: x if len(x) > 0 else [])
@@ -194,11 +195,19 @@ class TextConcatPosts(BasePostsDataset):
     lang: Language of the dataset (default: eng)
     version: Version of the dataset (default: None) Options ["english", "original"]
     """
+    
+    def __init__(self, posts_path, tasks_path, task_name, lang="eng", version=None, gs_path=None, demojize=False, prefix=""):
+        self.demojize = demojize
+        self.prefix = prefix
+        super().__init__(posts_path, tasks_path, task_name, lang, version, gs_path)
+    
 
     def preprocess_data(self):
         df_posts = super().preprocess_data()
-        df_posts["full_text"] = df_posts["ocr"] + " " + df_posts["text"]
+        df_posts["full_text"] = self.prefix + df_posts["ocr"] + "[SEP]" + df_posts["text"]
         df_posts["full_text"].str.lower()
+        if self.demojize:
+            df_posts["full_text"] = df_posts["full_text"].apply(lambda x: emoji.demojize(x))
         return df_posts
     
 class TextConcatFactCheck(BaseFactCheckDataset):
@@ -213,9 +222,17 @@ class TextConcatFactCheck(BaseFactCheckDataset):
     lang: Language of the dataset (default: eng)
     version: Version of the dataset (default: None) Options ["english", "original"]
     """
+    
+    def __init__(self, fact_check_path, tasks_path, task_name, lang="eng", version=None, demojize=False, prefix=""):
+        self.demojize = demojize
+        self.prefix = prefix
+        super().__init__(fact_check_path, tasks_path, task_name, lang, version)
 
     def preprocess_data(self):
         df_fact_check = super().preprocess_data()
-        df_fact_check["full_text"] = df_fact_check["title"] + " " + df_fact_check["claim"]
+        df_fact_check["full_text"] = self.prefix + df_fact_check["title"] + "[SEP]" + df_fact_check["claim"]
         df_fact_check["full_text"] = df_fact_check["full_text"].str.lower()
+        if self.demojize:
+            df_fact_check["full_text"] = df_fact_check["full_text"].apply(lambda x: emoji.demojize(x))
         return df_fact_check
+    
