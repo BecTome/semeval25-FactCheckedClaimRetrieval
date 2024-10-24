@@ -59,7 +59,7 @@ for lang in tqdm(langs, desc="Languages"):
     
     df_posts_dev["emb_preds"] = model.predict(df_posts_dev["full_text"].values).tolist()
         
-    cross_model = CrossencoderModel(cross_model_name, df_posts_dev, df_fc, show_progress_bar=False, batch_size=512, k=10)
+    cross_model = CrossencoderModel(cross_model_name, df_posts_dev, show_progress_bar=False, batch_size=512, k=10, device=device)
 
     df_posts_dev["preds"] = df_posts_dev.apply(lambda x:cross_model.predict(x["full_text"], x["emb_preds"]), axis=1)
 
