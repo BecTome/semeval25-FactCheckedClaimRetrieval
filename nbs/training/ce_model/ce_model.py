@@ -1,8 +1,8 @@
-# %%
+# 
 
 import os
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../.."))
 
 from src import config
 from src.datasets import TextConcatFactCheck, TextConcatPosts
@@ -22,7 +22,7 @@ fcs = TextConcatFactCheck(fact_checks_path, tasks_path=task_path, task_name=task
 df_posts_dev = posts.df_dev
 df_fc = fcs.df
 
-# %%
+# 
 from sentence_transformers import SentenceTransformer, CrossEncoder
 import torch
 import numpy as np
@@ -32,7 +32,7 @@ import os
 from src.models import BaseModel
 
 class CrossencoderModel(BaseModel):
-    def __init__(self, model_name, df_cands, df_fc, device="cuda", show_progress_bar=True, batch_size=128, k=10, **kwargs):
+    def __init__(self, model_name, df_cands, df_fc, device="cpu", show_progress_bar=True, batch_size=128, k=10, **kwargs):
         self.model = CrossEncoder(model_name, device=device, **kwargs)
         self.idx_to_text = df_fc["full_text"].to_dict()
         self.df_cands = df_cands.copy()
@@ -56,17 +56,17 @@ class CrossencoderModel(BaseModel):
         pos_ids = [pos_id["corpus_id"] for pos_id in pos_ids]
         return np.array(cands_list)[pos_ids]
 
-# %%
+# 
 from src.models import EmbeddingModel
 
-biencoder_name = "/gpfs/projects/bsc14/abecerr1/hub/models--sentence-transformers--paraphrase-multilingual-MiniLM-L12-v2/snapshots/ae06c001a2546bef168b9bf8f570ccb1a16aaa27"
-cand_ret_model = EmbeddingModel(biencoder_name, df_fc, show_progress_bar=True, batch_size=256, normalize_embeddings=True, k=100)
+biencoder_name = "sentence-transformers/all-MiniLM-L6-v2"
+cand_ret_model = EmbeddingModel(biencoder_name, df_fc, show_progress_bar=True, batch_size=256, normalize_embeddings=True, k=100, device="cpu")
 
 df_posts_dev["preds"] = cand_ret_model.predict(df_posts_dev["full_text"].values).tolist()
 
 
 
-# %%
+# 
 cross_model = CrossencoderModel("cross-encoder/ms-marco-MiniLM-L-6-v2", df_posts_dev, df_fc, show_progress_bar=False, batch_size=512, k=10)
 
 df_posts_dev["preds_cross"] = df_posts_dev.apply(lambda x:cross_model.predict(x["full_text"], x["preds"]), axis=1)
