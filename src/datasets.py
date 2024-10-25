@@ -20,7 +20,7 @@ class Dataset:
     iter_cols: Columns that need to be iterated over (default: []) Important for preprocessing the dataset
     """
     def __init__(self, path: str, tasks_path: str, task_name:str, 
-                 lang: str="eng", version:str="original", index_col:str=None, 
+                 lang: str="eng", version:str="original", index_col:str=None, # type: ignore
                  iter_cols:List[str]=["text", "ocr", "instances"]):
         
         assert task_name in ["monolingual", "crosslingual"]
@@ -124,7 +124,7 @@ class BasePostsDataset(Dataset):
         
         df_posts["text"] = df_posts["text"].apply(lambda x: x[self.idx_lang] if isinstance(x, tuple) else x)
         df_posts["ocr"] = df_posts["ocr"].apply(lambda x: " ".join(trip[self.idx_lang] for trip in x))
-        df_posts["verdicts"] = df_posts["verdicts"].apply(lambda x: x[self.idx_lang] if (isinstance(x, list))&(len(x)>0) else "")
+        df_posts["verdicts"] = df_posts["verdicts"].apply(lambda x: x[0] if (isinstance(x, list))&(len(x)>0) else "")
         df_posts["instances"] = df_posts["instances"].apply(lambda x: [social for _, social in x] if len(x)>0 else [])
         df_posts["fb"] = df_posts["instances"].apply(lambda x: np.sum(np.array(x)=="fb"))
         df_posts["tw"] = df_posts["instances"].apply(lambda x: np.sum(np.array(x)=="tw"))
