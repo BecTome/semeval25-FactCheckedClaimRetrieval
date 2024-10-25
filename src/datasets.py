@@ -20,7 +20,7 @@ class Dataset:
     iter_cols: Columns that need to be iterated over (default: []) Important for preprocessing the dataset
     """
     def __init__(self, path: str, tasks_path: str, task_name:str, 
-                 lang: str="eng", version:str="original", index_col:str=None, 
+                 lang: str="eng", version:str="original", index_col:str=None, # type: ignore
                  iter_cols:List[str]=["text", "ocr", "instances"]):
         
         assert task_name in ["monolingual", "crosslingual"]
@@ -100,7 +100,7 @@ class BasePostsDataset(Dataset):
     index_col = "post_id"
 
     def __init__(self, posts_path, tasks_path, task_name, lang="eng", version=None, gs_path=None):
-        super().__init__(posts_path, tasks_path, task_name, lang, index_col=self.index_col, iter_cols=self.iter_cols, version=version)
+        super().__init__(posts_path, tasks_path, task_name, lang, index_col=self.index_col, iter_cols=self.iter_cols, version=version) # type: ignore
 
         self.gs_path = gs_path
         if gs_path:
@@ -168,7 +168,7 @@ class BaseFactCheckDataset(Dataset):
     index_col = "fact_check_id"
 
     def __init__(self, fact_check_path, tasks_path, task_name, lang="eng", version=None):
-        super().__init__(fact_check_path, tasks_path, task_name, lang, index_col=self.index_col, iter_cols=self.iter_cols, version=version)
+        super().__init__(fact_check_path, tasks_path, task_name, lang, index_col=self.index_col, iter_cols=self.iter_cols, version=version) # type: ignore
         self.df = self.preprocess_data()
         # self.df = self.df.loc[self.idx_fc, :]
 

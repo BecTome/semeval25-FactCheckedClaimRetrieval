@@ -40,7 +40,7 @@ class BaseModel:
         d_eval = {task_name: {lang: {}}}
 
         if df_eval is None:
-            df_eval = self.df.copy()
+            df_eval = self.df.copy() #
             
         for k in ls_k:
             d_eval[task_name][lang][k] = df_eval.apply(lambda x: len(list((set(x["preds"][:k]) & set(x["gs"])))) > 0, axis=1).mean()
@@ -100,4 +100,4 @@ class CrossencoderModel(BaseModel):
         cands_list_text = self.vectorized_map(cands_list)
         pos_ids = self.model.rank(post, cands_list_text, show_progress_bar=self.show_progress_bar, batch_size=self.batch_size, top_k=self.k, convert_to_numpy=True)
         pos_ids = [pos_id["corpus_id"] for pos_id in pos_ids]
-        return np.array(cands_list)[pos_ids]
+        return np.array(cands_list)[pos_ids] # type: ignore

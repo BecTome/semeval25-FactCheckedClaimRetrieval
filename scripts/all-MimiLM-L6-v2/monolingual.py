@@ -38,7 +38,7 @@ cross_model_name = 'cross-encoder/ms-marco-MiniLM-L-6-v2'
 
 # check if cuda is available, if not use cpu
 device = "cuda" if torch.cuda.is_available() else "cpu"
-
+results = []
 for lang in tqdm(langs, desc="Languages"):
     
     print(f"Processing language: {lang}")
@@ -51,17 +51,41 @@ for lang in tqdm(langs, desc="Languages"):
         print(f"Data processed! for language {lang}\n")
     else:
         df_fc = pd.read_csv(f"scripts/all-MimiLM-L6-v2/processedData/fact_checks_{lang}.csv")
-        df_posts_train = pd.read_csv(f"scripts/all-MimiLM-L6-v2/processedData/posts_train_{lang}.csv")
+        # df_posts_train = pd.read_csv(f"scripts/all-MimiLM-L6-v2/processedData/posts_train_{lang}.csv")
         df_posts_dev = pd.read_csv(f"scripts/all-MimiLM-L6-v2/processedData/posts_dev_{lang}.csv")
         print(f"Data loaded! for language {lang}\n")
 
+    print(f"Creating Embedding Model for language: {lang}")
     model = EmbeddingModel(trans_model_name, df_fc, device=device, k=100)
     
+    print(f"Predicting Embeddings for language: {lang}")
     df_posts_dev["emb_preds"] = model.predict(df_posts_dev["full_text"].values).tolist()
-        
-    cross_model = CrossencoderModel(cross_model_name, df_posts_dev, show_progress_bar=False, batch_size=512, k=10, device=device)
+    
+    print(f"Creating Crossencoder Model for language: {lang}")
+    cross_model = CrossencoderModel(cross_model_name, df_fc, show_progress_bar=False, batch_size=512, k=10, device=device)
 
+    print(f"Reranking for language: {lang}")
     df_posts_dev["preds"] = df_posts_dev.apply(lambda x:cross_model.predict(x["full_text"], x["emb_preds"]), axis=1)
 
-    print(cross_model.evaluate(df_posts_dev, task_name='monolingual', lang=lang))
-        
+    results.append(cross_model.evaluate(df_posts_dev, task_name='monolingual', lang=lang))
+
+print(f"Results: {results}")
+
+# Convert list of dictionaries into a single dictionary
+flattened_data = {k: v for d in results for k, v in d.items()}
+
+# Convert to DataFrame
+df = pd.DataFrame(flattened_data).T.round(3)
+
+# Rename index and columns for clarity
+df.index.name = 'language'
+df.columns = ['1', '3', '5', '10']
+
+# add average columns and row
+df.loc['average'] = df.mean()
+
+# Display the DataFrame
+print(df)
+df.to_csv("scripts/all-MimiLM-L6-v2/monolingual_results.csv", index=True)
+
+
