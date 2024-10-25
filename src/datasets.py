@@ -99,7 +99,7 @@ class BasePostsDataset(Dataset):
     iter_cols = ['instances', 'ocr', 'verdicts', 'text']
     index_col = "post_id"
 
-    def __init__(self, posts_path, tasks_path, task_name, lang="eng", version=None, gs_path=None):
+    def __init__(self, posts_path, tasks_path, task_name, lang="eng", version="original", gs_path=None):
         super().__init__(posts_path, tasks_path, task_name, lang, index_col=self.index_col, iter_cols=self.iter_cols, version=version)
 
         self.gs_path = gs_path
@@ -167,7 +167,7 @@ class BaseFactCheckDataset(Dataset):
     iter_cols = ['title', 'claim', "instances"]
     index_col = "fact_check_id"
 
-    def __init__(self, fact_check_path, tasks_path, task_name, lang="eng", version=None):
+    def __init__(self, fact_check_path, tasks_path, task_name, lang="eng", version="original"):
         super().__init__(fact_check_path, tasks_path, task_name, lang, index_col=self.index_col, iter_cols=self.iter_cols, version=version)
         self.df = self.preprocess_data()
         # self.df = self.df.loc[self.idx_fc, :]
@@ -196,7 +196,7 @@ class TextConcatPosts(BasePostsDataset):
     version: Version of the dataset (default: None) Options ["english", "original"]
     """
     
-    def __init__(self, posts_path, tasks_path, task_name, lang="eng", version=None, gs_path=None, demojize=False, prefix=""):
+    def __init__(self, posts_path, tasks_path, task_name, lang="eng", version="original", gs_path=None, demojize=False, prefix=""):
         self.demojize = demojize
         self.prefix = prefix
         super().__init__(posts_path, tasks_path, task_name, lang, version, gs_path)
@@ -223,7 +223,7 @@ class TextConcatFactCheck(BaseFactCheckDataset):
     version: Version of the dataset (default: None) Options ["english", "original"]
     """
     
-    def __init__(self, fact_check_path, tasks_path, task_name, lang="eng", version=None, demojize=False, prefix=""):
+    def __init__(self, fact_check_path, tasks_path, task_name, lang="eng", version="original", demojize=False, prefix=""):
         self.demojize = demojize
         self.prefix = prefix
         super().__init__(fact_check_path, tasks_path, task_name, lang, version)
