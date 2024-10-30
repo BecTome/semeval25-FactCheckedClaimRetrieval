@@ -14,7 +14,7 @@ dev_input_examples = [InputExample(texts=sample["texts"], label=sample["label"])
 
 model = CrossEncoder('distilroberta-base', num_labels=1)
 
-train_dataloader = DataLoader(train_input_examples, shuffle=True, batch_size=16)
+train_dataloader = DataLoader(train_input_examples, shuffle=True, batch_size=16) # type: ignore
 
 num_epochs = 5
 # We add an evaluator, which evaluates the performance during training
@@ -25,7 +25,7 @@ model_save_path = 'output/crossencoder'
 
 model.fit(
     train_dataloader=train_dataloader,
-    evaluator= evaluator,
+    evaluator= evaluator, # type: ignore
     epochs=num_epochs,
     evaluation_steps=1000,
     warmup_steps=warmup_steps,
