@@ -5,6 +5,7 @@ import numpy as np
 from typing import List
 import pandas as pd
 import emoji
+from src import cleaning
 
 class Dataset:
     """
@@ -38,6 +39,7 @@ class Dataset:
         # Load tasks dictionary
         self.tasks = self.load_tasks()
         self.langs = list(self.tasks["monolingual"].keys())
+        
 
         # This ensures we don't get an error in multilingual case
         d_lan = self.get_if_exists(self.tasks[self.task_name], self.lang)
@@ -81,7 +83,7 @@ class Dataset:
         if self.task_name == "monolingual":
             return f"Dataset -- {self.path}, Task: {self.task_name}, Lang: {self.lang}"
         else:
-            return f"Dataset -- {self.path}, Task: {self.task_name}"
+            return f"Dataset -- {self.path}, Task: {self.task_name}" 
     
 
 class BasePostsDataset(Dataset):
@@ -99,8 +101,8 @@ class BasePostsDataset(Dataset):
     iter_cols = ['instances', 'ocr', 'verdicts', 'text']
     index_col = "post_id"
 
-    def __init__(self, posts_path, tasks_path, task_name, lang="eng", version=None, gs_path=None):
-        super().__init__(posts_path, tasks_path, task_name, lang, index_col=self.index_col, iter_cols=self.iter_cols, version=version) # type: ignore
+    def __init__(self, posts_path, tasks_path, task_name, lang="eng", version="original", gs_path=None, **kwargs):
+        super().__init__(posts_path, tasks_path, task_name, lang, index_col=self.index_col, iter_cols=self.iter_cols, version=version, **kwargs)
 
         self.gs_path = gs_path
         if gs_path:
@@ -129,7 +131,7 @@ class BasePostsDataset(Dataset):
         df_posts["fb"] = df_posts["instances"].apply(lambda x: np.sum(np.array(x)=="fb"))
         df_posts["tw"] = df_posts["instances"].apply(lambda x: np.sum(np.array(x)=="tw"))
         df_posts["ig"] = df_posts["instances"].apply(lambda x: np.sum(np.array(x)=="ig"))
-
+            
         df_posts.drop(columns=["instances"], inplace=True)
         return df_posts
     
@@ -167,8 +169,8 @@ class BaseFactCheckDataset(Dataset):
     iter_cols = ['title', 'claim', "instances"]
     index_col = "fact_check_id"
 
-    def __init__(self, fact_check_path, tasks_path, task_name, lang="eng", version=None):
-        super().__init__(fact_check_path, tasks_path, task_name, lang, index_col=self.index_col, iter_cols=self.iter_cols, version=version) # type: ignore
+    def __init__(self, fact_check_path, tasks_path, task_name, lang="eng", version="original", **kwargs):
+        super().__init__(fact_check_path, tasks_path, task_name, lang, index_col=self.index_col, iter_cols=self.iter_cols, version=version, **kwargs)
         self.df = self.preprocess_data()
         # self.df = self.df.loc[self.idx_fc, :]
 
@@ -177,6 +179,7 @@ class BaseFactCheckDataset(Dataset):
         df_fact_check["claim"] = df_fact_check["claim"].apply(lambda x: x[self.idx_lang] if isinstance(x, tuple) else x)
         df_fact_check["title"] = df_fact_check["title"].apply(lambda x: x[self.idx_lang] if isinstance(x, tuple) else x)
         df_fact_check["instances"] = df_fact_check["instances"].apply(lambda x: [url for _, url in x] if len(x)>0 else [])
+        
         return df_fact_check
     
     def __repr__(self):
@@ -196,18 +199,25 @@ class TextConcatPosts(BasePostsDataset):
     version: Version of the dataset (default: None) Options ["english", "original"]
     """
     
-    def __init__(self, posts_path, tasks_path, task_name, lang="eng", version="original", gs_path=None, demojize=False, prefix=""):
+    def __init__(self, posts_path, tasks_path, task_name, lang="eng", version="original", gs_path=None, demojize=False, prefix="", clean=False, **kwargs):
         self.demojize = demojize
         self.prefix = prefix
-        super().__init__(posts_path, tasks_path, task_name, lang, version, gs_path)
+        self.clean = clean
+        super().__init__(posts_path, tasks_path, task_name, lang, version, gs_path, **kwargs)
     
 
     def preprocess_data(self):
         df_posts = super().preprocess_data()
-        df_posts["full_text"] = self.prefix + df_posts["ocr"] + "[SEP]" + df_posts["text"]
+        df_posts["full_text"] = self.prefix + df_posts["ocr"] + " " + df_posts["text"]
         df_posts["full_text"].str.lower()
         if self.demojize:
             df_posts["full_text"] = df_posts["full_text"].apply(lambda x: emoji.demojize(x))
+        
+        if self.clean:
+            df_posts["full_text"] = df_posts["full_text"].str.lower()\
+                                                         .str.replace(cleaning.url_regex, "", regex=True)\
+                                                         .str.replace(cleaning.emoji_regex, "", regex=True)\
+                                                         .str.replace(cleaning.sentence_stop_regex, ".", regex=True)
         return df_posts
     
 class TextConcatFactCheck(BaseFactCheckDataset):
@@ -223,16 +233,22 @@ class TextConcatFactCheck(BaseFactCheckDataset):
     version: Version of the dataset (default: None) Options ["english", "original"]
     """
     
-    def __init__(self, fact_check_path, tasks_path, task_name, lang="eng", version="original", demojize=False, prefix=""):
+    def __init__(self, fact_check_path, tasks_path, task_name, lang="eng", version="original", demojize=False, prefix="", clean=False, **kwargs):
         self.demojize = demojize
         self.prefix = prefix
-        super().__init__(fact_check_path, tasks_path, task_name, lang, version)
+        self.clean = clean
+        super().__init__(fact_check_path, tasks_path, task_name, lang, version, **kwargs)
 
     def preprocess_data(self):
         df_fact_check = super().preprocess_data()
-        df_fact_check["full_text"] = self.prefix + df_fact_check["title"] + "[SEP]" + df_fact_check["claim"]
+        df_fact_check["full_text"] = self.prefix + df_fact_check["title"] + " " + df_fact_check["claim"]
         df_fact_check["full_text"] = df_fact_check["full_text"].str.lower()
         if self.demojize:
             df_fact_check["full_text"] = df_fact_check["full_text"].apply(lambda x: emoji.demojize(x))
-        return df_fact_check
-    
+        
+        if self.clean:
+            df_fact_check["full_text"] = df_fact_check["full_text"].str.lower()\
+                                                                    .str.replace(cleaning.url_regex, "", regex=True)\
+                                                                    .str.replace(cleaning.emoji_regex, "", regex=True)\
+                                                                    .str.replace(cleaning.sentence_stop_regex, ".", regex=True)
+        return df_fact_check    

@@ -4,6 +4,8 @@ import numpy as np
 from abc import abstractmethod
 import json
 import os
+import spacy
+from tqdm import tqdm
 
 class BaseModel:
     def __init__(self, device="cuda", show_progress_bar=True, batch_size=128, k=10):
@@ -82,6 +84,7 @@ class EmbeddingModel(BaseModel):
     
 
 class CrossencoderModel(BaseModel):
+    
     '''
     Given a text and a list of candidate positions (cands_list), this model ranks the candidates based on the similarity with the text.
     Returns the top-k candidates in form of fact_check_ids
@@ -101,3 +104,72 @@ class CrossencoderModel(BaseModel):
         pos_ids = self.model.rank(post, cands_list_text, show_progress_bar=self.show_progress_bar, batch_size=self.batch_size, top_k=self.k, convert_to_numpy=True)
         pos_ids = [pos_id["corpus_id"] for pos_id in pos_ids]
         return np.array(cands_list)[pos_ids] # type: ignore
+
+class IEModel(BaseModel):
+    '''
+    This model receives:
+        - Fact-check claims dataset with a column called full_text
+        - Spacy model name
+    
+    Applies Spacy NER to the full_text column and stores the entities in a set.
+    Applies lemmatisation to the full_text column and stores the lemmas in a set.
+    
+    Compares the entities and lemmas of the fact-check claims with the entities and lemmas of the posts.
+    Take the k first fact check for each post with the highest number of common entities and lemmas.
+    '''
+    
+    def __init__(self, model_name, df_fc, device="cuda",  k=10, **kwargs):
+        # "en_core_web_sm"
+        if device == "cuda":
+            spacy.prefer_gpu()
+            
+        self.model = spacy.load(model_name)
+        # self.idx_to_text = df_fc["full_text"].to_dict()
+        self.pos_to_idx = dict(enumerate(df_fc.index))
+        self.vectorized_map = np.vectorize(lambda x: self.pos_to_idx.get(x, None))     
+        self.emb_fc = self.encode(df_fc["full_text"].values)
+           
+        super().__init__(device, k=k)
+    
+    def encode(self, texts):
+        processed = [
+            {y.lemma_ for y in self.model(text) if not (y.is_stop or y.is_punct or y.is_space) and y.is_alpha}
+            | set(self.extract_entities(text, self.model))
+            for text in texts
+        ]
+        return np.array(processed)
+
+    def train(self, texts):
+        pass
+
+    def predict(self, texts):
+        emb_texts = self.encode(texts)#.values  # Convert to a list or numpy array for faster iteration
+        fc_texts = self.emb_fc#.values
+
+        # Calculate intersections efficiently
+        preds = []
+        for emb in emb_texts:
+            common_counts = np.array([len(emb & fc_el) for fc_el in fc_texts])
+            top_k_indices = np.argsort(-common_counts)[:self.k]  # Sort and pick top k indices
+            preds.append([self.pos_to_idx[i] for i in top_k_indices])
+        
+        return np.array(preds)
+
+    @staticmethod
+    def get_word_intersection(x, y):
+        set_words_in_common = set(x).intersection(y)
+        return list(set_words_in_common)
+    
+    @staticmethod
+    def extract_entities(text, model):
+        # get hashtags
+        hashtags = [word[1:] for word in text.split() if word.startswith("#")]
+        text = text.replace("#", "")
+        
+        ents_0 = model(text).ents
+        # get ents ngrams from 1 to 3
+
+        return [ent.text for ent in ents_0] + hashtags
+
+    # def predict(self, ):
+        
