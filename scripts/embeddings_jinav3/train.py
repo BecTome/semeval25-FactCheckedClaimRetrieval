@@ -66,7 +66,7 @@ def run_task(tasks_path, task_name, langs, model_name, output_path):
         df_posts_dev = posts.df_dev
         log_info("Loading model...")
         time_start = time()
-        model = EmbeddingModel(model_name, df_fc, batch_size=512)
+        model = EmbeddingModel(model_name, df_fc, batch_size=256, model_type="jina")
         log_info(f"Time taken: {time() - time_start:.2f}s\n")
         
         log_info("Predicting...")

@@ -56,17 +56,29 @@ class BaseModel:
         return d_eval
 
 class EmbeddingModel(BaseModel):
-    def __init__(self, model_name, df_fc, device="cuda", show_progress_bar=True, batch_size=128, normalize_embeddings=True, k=10):
+    def __init__(self, model_name, df_fc, device="cuda", show_progress_bar=True, batch_size=128, normalize_embeddings=True, k=10, model_type=None, **kwargs):
         super().__init__(device, show_progress_bar, batch_size, k)
-        self.model = SentenceTransformer(model_name, device=device)
+        self.model = SentenceTransformer(model_name, device=device, trust_remote_code=True)
         self.normalize_embeddings = normalize_embeddings
-        self.emb_fc = self.encode(df_fc["full_text"].values)
+        self.model_type = model_type
+        
+        if self.model_type == "jina":
+            self.emb_fc = self.encode(df_fc["full_text"].values, task="retrieval.passage")
+        else:
+            self.emb_fc = self.encode(df_fc["full_text"].values)
+            
         self.pos_to_idx = {pos: idx for pos, idx in enumerate(df_fc.index)}
 
 
-    def encode(self, texts):
-        return torch.tensor(self.model.encode(texts, show_progress_bar=self.show_progress_bar, 
-                                              batch_size=self.batch_size, normalize_embeddings=self.normalize_embeddings)) #  device=self.device,
+    def encode(self, texts, task=None):
+        
+        if task is not None:
+            return torch.tensor(self.model.encode(texts, show_progress_bar=self.show_progress_bar, 
+                                              batch_size=self.batch_size, normalize_embeddings=self.normalize_embeddings,
+                                              task=task)) #  device=self.device,
+        else:
+            return torch.tensor(self.model.encode(texts, show_progress_bar=self.show_progress_bar, 
+                                                batch_size=self.batch_size, normalize_embeddings=self.normalize_embeddings))
         
     def train(self, texts):
         pass
@@ -74,13 +86,25 @@ class EmbeddingModel(BaseModel):
     def similarity(self, emb1, emb2):
         return torch.mm(emb1, emb2.T).cpu().numpy()
     
-    def predict(self, texts):
-        arr1 = self.encode(texts)
+    def predict(self, texts, scores=False, limit_k=True):
+        
+        if self.model_type == "jina":
+            arr1 = self.encode(texts, task="retrieval.query")
+        else:
+            arr1 = self.encode(texts)
+            
         sim = self.similarity(arr1, self.emb_fc)
-        idx_sim = np.argsort(sim, axis=1)[:, ::-1][:, :self.k]
+        idx_sim = np.argsort(-sim, axis=1)
         # Apply the function element-wise to the array
         vectorized_map = np.vectorize(lambda x: self.pos_to_idx.get(x, None))
-        return vectorized_map(idx_sim)
+        
+        if scores:
+            if limit_k:
+                return vectorized_map(idx_sim)[:, :self.k], np.sort(sim, axis=1)[:, ::-1][:, :self.k]
+            else:
+                return vectorized_map(idx_sim), sim
+        else:
+            return vectorized_map(idx_sim)
     
 
 class CrossencoderModel(BaseModel):
@@ -98,10 +122,10 @@ class CrossencoderModel(BaseModel):
     def train(self, texts):
         pass
     
-    def predict(self, post, cands_list):
+    def predict(self, posts, cands_list):
         # df_posts_dev["preds"] = df_posts_dev.apply(lambda x:cross_model.predict(x["full_text"], x["preds"]), axis=1)
-        cands_list_text = self.vectorized_map(cands_list)
-        pos_ids = self.model.rank(post, cands_list_text, show_progress_bar=self.show_progress_bar, batch_size=self.batch_size, top_k=self.k, convert_to_numpy=True)
+        cands_list_text = [self.idx_to_text[pos] for pos in cands_list]
+        pos_ids = self.model.rank(posts, cands_list_text, show_progress_bar=self.show_progress_bar, batch_size=self.batch_size, top_k=self.k, convert_to_numpy=True)
         pos_ids = [pos_id["corpus_id"] for pos_id in pos_ids]
         return np.array(cands_list)[pos_ids] # type: ignore
 
