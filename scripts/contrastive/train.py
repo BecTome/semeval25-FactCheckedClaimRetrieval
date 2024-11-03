@@ -30,7 +30,7 @@ from src.utils import log_info
 from src.contrastive import generate_triplets
 
 
-def run_task(tasks_path, task_name, langs, teacher_model_name, reranker_model_name, output_path, triplets_path=None, d_config={}):
+def run_task(tasks_path, task_name, langs, teacher_model_name, reranker_model_name, output_path, model_save_path, triplets_path=None, d_config={}):
     """
     Run the task with the given parameters.
     """
@@ -86,6 +86,11 @@ def run_task(tasks_path, task_name, langs, teacher_model_name, reranker_model_na
     df_eval.index.name = "k"
     
     for lang in tqdm(langs, desc="Languages"):
+        if model_save_path is not None:
+            model_save_path = os.path.join(model_save_path, f"{task_name}_{lang}_reranker")
+            if not os.path.exists(model_save_path):
+                os.makedirs(model_save_path)
+            
         log_info(f"Lang: {lang}")
         time_start_lang = time()
         
@@ -119,7 +124,10 @@ def run_task(tasks_path, task_name, langs, teacher_model_name, reranker_model_na
             df_cl = generate_triplets(df_posts_train, df_fc, teacher_model, n_candidates=n_neg_candidates, neg_perc_threshold=neg_perc_threshold)
             log_info(f"Time taken TRIPLETS GENERATION: {time() - time_start:.2f}s\n")
 
-        rerank_model = CrossEncoder(reranker_model_name, num_labels=1, max_length=1024, trust_remote_code=True, optimizer_params=optimizer_params)
+        if model_save_path is not None:
+            df_cl.to_csv(os.path.join(model_save_path, f"triplets.csv"), index=False)
+        
+        rerank_model = CrossEncoder(reranker_model_name, num_labels=1, max_length=1024, trust_remote_code=True)
 
         train_samples = df_cl.progress_apply(lambda x: InputExample(texts=[x["query"], x["passage"]], label=x["label"]), axis=1).tolist()
         
@@ -140,8 +148,12 @@ def run_task(tasks_path, task_name, langs, teacher_model_name, reranker_model_na
                             epochs=num_epochs,
                             evaluation_steps=10000,
                             warmup_steps=warmup_steps,
-                            output_path=output_path,
+                            output_path=model_save_path, 
+                            optimizer_params=optimizer_params
                         )
+        
+        if model_save_path is not None:
+            log_info(f"Model saved to: {model_save_path}")
                         
         log_info("Predicting...")
         time_start = time()
@@ -175,6 +187,7 @@ def run_task(tasks_path, task_name, langs, teacher_model_name, reranker_model_na
         # log_info("\n\n")
         
         log_info(f"\nTime taken for lang {lang}: {time() - time_start_lang:.2f}s\n")
+        
     
     df_eval["avg"] = df_eval.mean(axis=1)
 
@@ -198,12 +211,13 @@ def main():
     parser.add_argument('--triplets_path', type=str, default=None, help="Path to the triplets file")
     
     parser.add_argument('--output_path', type=str, default=None, help="Directory to save output")
+    parser.add_argument('--model_save_path', type=str, default=None, help="Directory to save model")
     parser.add_argument('--task_file', type=str, default=config.TASKS_PATH, help="Path to the task file")
     parser.add_argument('--langs', type=str, nargs='+', default=config.LANGS, help="List of languages")
 
     args = parser.parse_args()
 
-    run_task(args.task_file, args.task_name, args.langs, args.teacher_model_name, args.reranker_model_name, args.output_path)
+    run_task(args.task_file, args.task_name, args.langs, args.teacher_model_name, args.reranker_model_name, args.output_path, args.model_save_path)
 
 if __name__ == "__main__":
     main()
