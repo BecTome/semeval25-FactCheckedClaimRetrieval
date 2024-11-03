@@ -142,58 +142,71 @@ class IEModel(BaseModel):
     Take the k first fact check for each post with the highest number of common entities and lemmas.
     '''
     
-    def __init__(self, model_name, df_fc, device="cuda",  k=10, **kwargs):
+    def __init__(self, model_name, df_fc, device="cuda",  k=10, batch_size=512, **kwargs):
         # "en_core_web_sm"
         if device == "cuda":
-            spacy.prefer_gpu()
+            spacy.require_gpu()
+        
+        if not spacy.util.is_package(model_name):
+            spacy.download(model_name)
             
         self.model = spacy.load(model_name)
         # self.idx_to_text = df_fc["full_text"].to_dict()
         self.pos_to_idx = dict(enumerate(df_fc.index))
-        self.vectorized_map = np.vectorize(lambda x: self.pos_to_idx.get(x, None))     
+        self.vectorized_map = np.vectorize(lambda x: self.pos_to_idx.get(x, None))                
+        super().__init__(device, k=k, batch_size=batch_size)
+        if k is None:
+            self.k = len(df_fc)
         self.emb_fc = self.encode(df_fc["full_text"].values)
-           
-        super().__init__(device, k=k)
+
     
     def encode(self, texts):
-        processed = [
-            {y.lemma_ for y in self.model(text) if not (y.is_stop or y.is_punct or y.is_space) and y.is_alpha}
-            | set(self.extract_entities(text, self.model))
-            for text in texts
-        ]
-        return np.array(processed)
+        processed = [self.process_text(doc) for doc in self.model.pipe(texts, batch_size=self.batch_size)]
+        return processed
 
     def train(self, texts):
         pass
 
-    def predict(self, texts):
-        emb_texts = self.encode(texts)#.values  # Convert to a list or numpy array for faster iteration
-        fc_texts = self.emb_fc#.values
+    def predict(self, texts, debug=False):
+        # emb_texts = self.encode(texts)#.values  # Convert to a list or numpy array for faster iteration
+        # fc_texts = self.emb_fc#.values
 
-        # Calculate intersections efficiently
-        preds = []
-        for emb in emb_texts:
-            common_counts = np.array([len(emb & fc_el) for fc_el in fc_texts])
-            top_k_indices = np.argsort(-common_counts)[:self.k]  # Sort and pick top k indices
-            preds.append([self.pos_to_idx[i] for i in top_k_indices])
+        # # Calculate intersections efficiently
+        # preds = []
+        # for emb in emb_texts:
+        #     common_counts = np.array([len(emb & fc_el) for fc_el in fc_texts])
+        #     top_k_indices = np.argsort(-common_counts)[:self.k]  # Sort and pick top k indices
+        #     preds.append([self.pos_to_idx[i] for i in top_k_indices])
         
-        return np.array(preds)
+        ls_lemmas = self.emb_fc
+        set_ls_lemmas = [set(y) for y in ls_lemmas]
+
+        text_emb = self.encode(texts)
+        ls_intersec = [[set(x).intersection(y) for y in set_ls_lemmas] for x in text_emb]
+        len_intersec = [[len(x) for x in y] for y in ls_intersec]
+        # top_nonzero = [self.non_zero_in_top(np.array(x), k=self.k) for x in ls_intersec]
+        top_nonzero = [np.argsort(-np.array(x))[:self.k] for x in len_intersec]
+        preds = [[self.pos_to_idx[i] for i in x] for x in top_nonzero]
+        if debug:
+            return preds, len_intersec, ls_intersec, top_nonzero
+        else:
+            return preds
 
     @staticmethod
-    def get_word_intersection(x, y):
-        set_words_in_common = set(x).intersection(y)
-        return list(set_words_in_common)
+    def non_zero_in_top(arr, k=None):
+        # get the indices of the top nonzero elements
+        if k is None:
+            k = len(arr)
+        top = np.argsort(-arr)[:k]
+        non_zero = np.nonzero(arr)[0]
+        # get the nonzero elements in top preserving the order of top
+        non_zero_in_top = [x for x in top if x in non_zero]
+        return non_zero_in_top
     
     @staticmethod
-    def extract_entities(text, model):
-        # get hashtags
-        hashtags = [word[1:] for word in text.split() if word.startswith("#")]
-        text = text.replace("#", "")
-        
-        ents_0 = model(text).ents
-        # get ents ngrams from 1 to 3
-
-        return [ent.text for ent in ents_0] + hashtags
+    def process_text(doc):
+        # Extract lemmatized tokens (including named entities), excluding punctuation and stopwords and spaces
+        return [token.lemma_ for token in doc if not token.is_punct and not token.is_stop and not token.is_space]
 
     # def predict(self, ):
         

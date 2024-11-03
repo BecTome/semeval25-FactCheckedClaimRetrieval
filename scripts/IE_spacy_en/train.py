@@ -74,7 +74,7 @@ def run_task(tasks_path, task_name, langs, model_name, output_path):
         
         log_info("Predicting...")
         time_start = time()
-        df_posts_dev["preds"] = model.predict(df_posts_dev["full_text"].values).tolist()
+        df_posts_dev["preds"] = model.predict(df_posts_dev["full_text"].values)
         log_info(f"Time taken: {time() - time_start:.2f}s\n")
             
         d_out.update(df_posts_dev["preds"].to_dict())
