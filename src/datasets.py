@@ -209,13 +209,12 @@ class TextConcatPosts(BasePostsDataset):
     def preprocess_data(self):
         df_posts = super().preprocess_data()
         df_posts["full_text"] = self.prefix + df_posts["ocr"] + " " + df_posts["text"]
-        df_posts["full_text"].str.lower()
+        # df_posts["full_text"].str.lower()
         if self.demojize:
             df_posts["full_text"] = df_posts["full_text"].apply(lambda x: emoji.demojize(x))
         
         if self.clean:
-            df_posts["full_text"] = df_posts["full_text"].str.lower()\
-                                                         .str.replace(cleaning.url_regex, "", regex=True)\
+            df_posts["full_text"] = df_posts["full_text"].str.replace(cleaning.url_regex, "", regex=True)\
                                                          .str.replace(cleaning.emoji_regex, "", regex=True)\
                                                          .str.replace(cleaning.sentence_stop_regex, ".", regex=True)
         return df_posts
@@ -242,13 +241,12 @@ class TextConcatFactCheck(BaseFactCheckDataset):
     def preprocess_data(self):
         df_fact_check = super().preprocess_data()
         df_fact_check["full_text"] = self.prefix + df_fact_check["title"] + " " + df_fact_check["claim"]
-        df_fact_check["full_text"] = df_fact_check["full_text"].str.lower()
+        # df_fact_check["full_text"] = df_fact_check["full_text"].str.lower()
         if self.demojize:
             df_fact_check["full_text"] = df_fact_check["full_text"].apply(lambda x: emoji.demojize(x))
         
         if self.clean:
-            df_fact_check["full_text"] = df_fact_check["full_text"].str.lower()\
-                                                                    .str.replace(cleaning.url_regex, "", regex=True)\
+            df_fact_check["full_text"] = df_fact_check["full_text"].str.replace(cleaning.url_regex, "", regex=True)\
                                                                     .str.replace(cleaning.emoji_regex, "", regex=True)\
                                                                     .str.replace(cleaning.sentence_stop_regex, ".", regex=True)
         return df_fact_check    
