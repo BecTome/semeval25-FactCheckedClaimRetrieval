@@ -20,5 +20,5 @@ source ~/.bashrc  # This reloads the shell to apply conda settings
 
 conda activate factcheck
 
-# ~/.conda/envs/factcheck/bin/python scripts/IE_spacy_en/train.py --task_file data/splits/tasks.json --task_name monolingual --model_name en_core_web_sm --output_path output/official/IE_spacy_en
-~/.conda/envs/factcheck/bin/python scripts/IE_spacy_en/train.py --task_file data/splits/tasks.json  --task_name crosslingual --model_name en_core_web_sm --output_path output/IE_spacy_en
+~/.conda/envs/factcheck/bin/python scripts/IE_spacy_en/train.py --task_file data/splits/tasks_no_gs_overlap.json --task_name crosslingual --model_name en_core_web_trf --output_path output/IE_spacy_en_trf
+# ~/.conda/envs/factcheck/bin/python scripts/IE_spacy_en/train.py --task_file data/splits/tasks.json  --task_name crosslingual --model_name en_core_web_sm --output_path output/IE_spacy_en
