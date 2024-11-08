@@ -56,22 +56,28 @@ class BaseModel:
         return d_eval
 
 class EmbeddingModel(BaseModel):
-    def __init__(self, model_name, df_fc, device="cuda", show_progress_bar=True, batch_size=128, normalize_embeddings=True, k=10, model_type=None, **kwargs):
+    def __init__(self, model_name, df_fc, device="cuda", show_progress_bar=True, batch_size=128, normalize_embeddings=True, k=10, model_type=None, prompt=None, **kwargs):
         super().__init__(device, show_progress_bar, batch_size, k)
         self.model = SentenceTransformer(model_name, device=device, trust_remote_code=True)
         self.normalize_embeddings = normalize_embeddings
         self.model_type = model_type
+        self.prompt = prompt
         
         if self.model_type == "jina":
             self.emb_fc = self.encode(df_fc["full_text"].values, task="retrieval.passage")
+        elif self.prompt:
+            self.emb_fc = self.encode(df_fc["full_text"].values, prompt=self.prompt)
         else:
             self.emb_fc = self.encode(df_fc["full_text"].values)
             
         self.pos_to_idx = {pos: idx for pos, idx in enumerate(df_fc.index)}
 
 
-    def encode(self, texts, task=None):
-        
+    def encode(self, texts, task=None, prompt=None):
+        if prompt:
+            return torch.tensor(self.model.encode(texts, show_progress_bar=self.show_progress_bar, 
+                                              batch_size=self.batch_size, normalize_embeddings=self.normalize_embeddings,
+                                              prompt=prompt))
         if task is not None:
             return torch.tensor(self.model.encode(texts, show_progress_bar=self.show_progress_bar, 
                                               batch_size=self.batch_size, normalize_embeddings=self.normalize_embeddings,
@@ -86,8 +92,9 @@ class EmbeddingModel(BaseModel):
     def similarity(self, emb1, emb2):
         return torch.mm(emb1, emb2.T).cpu().numpy()
     
-    def predict(self, texts, scores=False, limit_k=True):
-        
+    def predict(self, texts, scores=False, limit_k=True, prompt=None):
+        if prompt is not None:
+            arr1 = self.encode(texts, prompt=prompt)
         if self.model_type == "jina":
             arr1 = self.encode(texts, task="retrieval.query")
         else:
