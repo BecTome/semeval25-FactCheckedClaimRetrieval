@@ -14,14 +14,12 @@ import numpy as np
 
 from sentence_transformers import CrossEncoder
 from torch.utils.data import DataLoader
+from torch import nn
 from sentence_transformers.readers import InputExample
 
 from sentence_transformers.cross_encoder.evaluation import CECorrelationEvaluator
-from sentence_transformers.evaluation import SequentialEvaluator
 from sklearn.model_selection import train_test_split
 import math
-from scipy.stats import pearsonr, spearmanr
-
 
 # Importing from src
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
@@ -77,7 +75,7 @@ def run_task(tasks_path, task_name, langs, teacher_model_name, reranker_model_na
     log_info(f"Embedding batch size: {emb_batch_size}")
     log_info(f"Number of candidates: {n_candidates}")
     log_info(f"Number of negative candidates: {n_neg_candidates}")
-    log_info(f"Negative percentage threshold: {neg_perc_threshold}\n")
+    # log_info(f"Negative percentage threshold: {neg_perc_threshold}\n")
 
     
     # tasks_path = "data/splits/tasks_local_dev.json"
@@ -166,6 +164,8 @@ def run_task(tasks_path, task_name, langs, teacher_model_name, reranker_model_na
             return corr
 
         pearson_loss = lambda x, y: -pearson_corr(x, y)
+        sigmoid = nn.Sigmoid()
+        
         # Train the model
         rerank_model.fit(
                             train_dataloader=train_dataloader,
@@ -174,7 +174,7 @@ def run_task(tasks_path, task_name, langs, teacher_model_name, reranker_model_na
                             evaluation_steps=10000,
                             warmup_steps=warmup_steps,
                             output_path=model_save_path,
-                            activation_fct=lambda x: x, 
+                            activation_fct=sigmoid,          # Activation function is sigmoid because otherwise logits are returned
                             optimizer_params=optimizer_params,
                             loss_fct=pearson_loss
                         )
