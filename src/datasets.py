@@ -89,6 +89,11 @@ class Dataset:
 class BasePostsDataset(Dataset):
     """
     This class is used to load the posts dataset.
+    
+    Attributes:
+    - df: All the posts in every language.
+    - df_train: Train posts in lang.
+    - df_dev: Dev posts in lang.
 
     Inputs:
 
