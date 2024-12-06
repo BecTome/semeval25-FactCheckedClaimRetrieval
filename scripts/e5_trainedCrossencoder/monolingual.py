@@ -28,17 +28,14 @@ posts_path = config.POSTS_PATH
 fact_checks_path = config.FACT_CHECKS_PATH
 gs_path = config.GS_PATH
 langs = config.LANGS
-# 
-
-# if available
-embedings_path = "scripts/all-MimiLM-L6-v2/monolingual_embeddings.json"
-processed_data_path = "scripts/all-MimiLM-L6-v2/processedData"
+processed_data_path = ""
 
 # models to use
-trans_model_name = config.MINILM12_MULTILINGUAL_EMBED
-cross_model_name = config.ROBERTA_CROSS
+trans_model_name = config.E5ENCODER
+cross_model_name = 'scripts/trainCrossEncoder/crossencoder'
 
-output_path = os.path.join(trans_model_name.split("/")[-1] + '.csv')
+dirpath = "scripts/e5_trainedCrossencoder"
+output_path = os.path.join(dirpath, trans_model_name.split("/")[-1] + "_" + cross_model_name.split("/")[-1] + '.csv')
 
 # check if cuda is available, if not use cpu
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -48,8 +45,8 @@ for lang in tqdm(langs, desc="Languages"):
     print(f"Processing language: {lang}")
     
     if not os.path.isdir(processed_data_path):
-        posts = TextConcatPosts(posts_path, tasks_path, task_name="monolingual", gs_path=gs_path, lang=lang, demojize=True,version="original")
-        fact_checks = TextConcatFactCheck(fact_checks_path, tasks_path, task_name="monolingual", lang=lang, demojize=True,version="original")
+        posts = TextConcatPosts(posts_path, tasks_path, task_name="monolingual", gs_path=gs_path, lang=lang, demojize=True, prefix="query: ",version="original")
+        fact_checks = TextConcatFactCheck(fact_checks_path, tasks_path, task_name="monolingual", lang=lang, demojize=True, prefix="passage: ",version="original")
         df_fc = fact_checks.df
         df_posts_dev = posts.df_dev
         print(f"Data processed! for language {lang}\n")
@@ -62,18 +59,23 @@ for lang in tqdm(langs, desc="Languages"):
     print(f"Creating Embedding Model for language: {lang}")
     model = EmbeddingModel(trans_model_name, df_fc, device=device, k=100)
     
-    print(f"Predicting Embeddings for language: {lang}")
-    df_posts_dev["preds"] = model.predict(df_posts_dev["full_text"].values).tolist()
+    print(f"\n Predicting Embeddings for language: {lang}")
+    df_posts_dev["emb_preds"] = model.predict(df_posts_dev["full_text"].values).tolist()
     
-    # print(f"Creating Crossencoder Model for language: {lang}")
-    # cross_model = CrossencoderModel(cross_model_name, df_fc, show_progress_bar=False, batch_size=512, k=10, device=device)
+    posts = TextConcatPosts(posts_path, tasks_path, task_name="monolingual", gs_path=gs_path, lang=lang, demojize=True, version="english")
+    fact_checks = TextConcatFactCheck(fact_checks_path, tasks_path, task_name="monolingual", lang=lang, demojize=True, version="english")
+    df_fc = fact_checks.df
+    df_posts_dev = posts.df_dev
+    
+    print(f"\n Creating Crossencoder Model for language: {lang}")
+    cross_model = CrossencoderModel(cross_model_name, df_fc, show_progress_bar=False, batch_size=512, k=10, device=device)
 
-    # print(f"Reranking for language: {lang}")
-    # df_posts_dev["preds"] = df_posts_dev.apply(lambda x:cross_model.predict(x["full_text"], x["emb_preds"]), axis=1)
+    print(f"\n Reranking for language: {lang}")
+    df_posts_dev["preds"] = df_posts_dev.apply(lambda x:cross_model.predict(x["full_text"], x["emb_preds"]), axis=1)
 
     results.append(model.evaluate(df_posts_dev, task_name='monolingual', lang=lang))
 
-print(f"Results: {results}")
+print(f"\n Results: {results}")
 
 # Convert list of dictionaries into a single dictionary
 flattened_data = {k: v for task in results for d in task for k, v in task[d].items()}

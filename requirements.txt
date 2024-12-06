@@ -3,7 +3,8 @@ sentence-transformers
 torch
 SimpleITK
 networkx
-numpy
+spacy
+numpy==1.26.4
 pandas
 tqdm
 typing
