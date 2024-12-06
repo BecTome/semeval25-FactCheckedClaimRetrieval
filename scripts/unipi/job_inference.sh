@@ -2,7 +2,7 @@
 #SBATCH --job-name=ce_train
 #SBATCH -D .
 #SBATCH -A bsc14
-#SBATCH --qos=acc_debug
+#SBATCH --qos=acc_bscls
 #SBATCH --output=logs/unipi/log_%j.out
 #SBATCH --error=logs/unipi/log_%j.err
 #SBATCH --ntasks=1
@@ -20,7 +20,7 @@ source ~/.bashrc  # This reloads the shell to apply conda settings
 
 conda activate factcheck
 
-~/.conda/envs/factcheck/bin/python scripts/unipi/train.py --task_name monolingual\
+~/.conda/envs/factcheck/bin/python scripts/unipi/train.py --task_name crosslingual\
  --teacher_model_name '/gpfs/projects/bsc14/abecerr1/hub/models--intfloat--multilingual-e5-large/snapshots/ab10c1a7f42e74530fe7ae5be82e6d4f11a719eb'\
  --reranker_model_name 'jinaai/jina-reranker-v2-base-multilingual'\
   --output_path output/unipi --task_file data/splits/tasks_no_gs_overlap.json
