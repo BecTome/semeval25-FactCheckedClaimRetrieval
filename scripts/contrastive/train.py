@@ -96,13 +96,13 @@ def run_task(tasks_path, task_name, langs, teacher_model_name, reranker_model_na
         
         log_info("Loading posts...")
         time_start = time()
-        posts = TextConcatPosts(posts_path, tasks_path, task_name=task_name, gs_path=gs_path, lang=lang)
+        posts = TextConcatPosts(posts_path, tasks_path, task_name=task_name, gs_path=gs_path, lang=lang, version="english")
         log_info(f"Loaded {len(posts)}")
         log_info(f"Time taken: {time() - time_start:.2f}s\n")
         
         log_info("Loading fact checks..")
         time_start = time()
-        fact_checks = TextConcatFactCheck(fact_checks_path, tasks_path, task_name=task_name, lang=lang)
+        fact_checks = TextConcatFactCheck(fact_checks_path, tasks_path, task_name=task_name, lang=lang, version="english")
         log_info(f"Loaded {len(fact_checks)}")
         log_info(f"Time taken: {time() - time_start:.2f}s\n")
 

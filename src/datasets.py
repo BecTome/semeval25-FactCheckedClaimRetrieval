@@ -5,6 +5,9 @@ import numpy as np
 from typing import List
 import pandas as pd
 import emoji
+from tqdm import tqdm
+tqdm.pandas()
+
 from src import cleaning
 
 class Dataset:
@@ -117,7 +120,10 @@ class BasePostsDataset(Dataset):
 
 
     def preprocess_data(self):
-        df_posts = self.load_data()
+        if self.lang == "all":
+            df_posts = self.load_data()
+        else:
+            df_posts = self.load_data(indices=self.idx_train+self.idx_dev)
         
         # Get the language of the text in order to stratify the data in crosslingual case
         text_lan = df_posts["text"].apply(lambda x: x[-1][0][0] if isinstance(x, tuple) else x)
@@ -204,10 +210,11 @@ class TextConcatPosts(BasePostsDataset):
     version: Version of the dataset (default: None) Options ["english", "original"]
     """
     
-    def __init__(self, posts_path, tasks_path, task_name, lang="eng", version="original", gs_path=None, demojize=False, prefix="", clean=False, **kwargs):
+    def __init__(self, posts_path, tasks_path, task_name, lang="eng", version="original", gs_path=None, demojize=False, prefix="", cleaning_function=None, clean=False, **kwargs):
         self.demojize = demojize
         self.prefix = prefix
         self.clean = clean
+        self.cleaning_function = cleaning_function
         super().__init__(posts_path, tasks_path, task_name, lang, version, gs_path, **kwargs)
     
 
@@ -222,6 +229,9 @@ class TextConcatPosts(BasePostsDataset):
             df_posts["full_text"] = df_posts["full_text"].str.replace(cleaning.url_regex, "", regex=True)\
                                                          .str.replace(cleaning.emoji_regex, "", regex=True)\
                                                          .str.replace(cleaning.sentence_stop_regex, ".", regex=True)
+        if self.cleaning_function:
+            df_posts["full_text"] = self.cleaning_function(df_posts["full_text"].values)
+            
         return df_posts
     
 class TextConcatFactCheck(BaseFactCheckDataset):
@@ -237,10 +247,11 @@ class TextConcatFactCheck(BaseFactCheckDataset):
     version: Version of the dataset (default: None) Options ["english", "original"]
     """
     
-    def __init__(self, fact_check_path, tasks_path, task_name, lang="eng", version="original", demojize=False, prefix="", clean=False, **kwargs):
+    def __init__(self, fact_check_path, tasks_path, task_name, lang="eng", version="original", demojize=False, prefix="", clean=False, cleaning_function=None, **kwargs):
         self.demojize = demojize
         self.prefix = prefix
         self.clean = clean
+        self.cleaning_function = cleaning_function
         super().__init__(fact_check_path, tasks_path, task_name, lang, version, **kwargs)
 
     def preprocess_data(self):
@@ -254,4 +265,9 @@ class TextConcatFactCheck(BaseFactCheckDataset):
             df_fact_check["full_text"] = df_fact_check["full_text"].str.replace(cleaning.url_regex, "", regex=True)\
                                                                     .str.replace(cleaning.emoji_regex, "", regex=True)\
                                                                     .str.replace(cleaning.sentence_stop_regex, ".", regex=True)
+
+        if self.cleaning_function is not None and "df_clean" not in self.__dict__:
+            self.df_clean = df_fact_check.copy()
+            self.df_clean["full_text"] = self.cleaning_function(self.df_clean["full_text"].values)
+            
         return df_fact_check    

@@ -20,12 +20,12 @@ source ~/.bashrc  # This reloads the shell to apply conda settings
 
 conda activate factcheck
 
-~/.conda/envs/factcheck/bin/python scripts/unipi/train.py --task_name crosslingual\
+/gpfs/projects/bsc14/scratch/.conda/factcheck/bin/python scripts/unipi/train.py --task_name crosslingual\
  --teacher_model_name '/gpfs/projects/bsc14/abecerr1/hub/models--intfloat--multilingual-e5-large/snapshots/ab10c1a7f42e74530fe7ae5be82e6d4f11a719eb'\
  --reranker_model_name 'jinaai/jina-reranker-v2-base-multilingual'\
   --output_path output/unipi --task_file data/splits/tasks_no_gs_overlap.json
 
-# ~/.conda/envs/factcheck/bin/python scripts/embeddings_jinav3/train.py --task_name crosslingual \
+# /gpfs/projects/bsc14/scratch/.conda/factcheck/bin/python scripts/embeddings_jinav3/train.py --task_name crosslingual \
 #  --model_name /gpfs/projects/bsc14/abecerr1/hub/models--jinaai--jina-embeddings-v3/snapshots/fa78e35d523dcda8d3b5212c7487cf70a4b277da\
 #   --output_path output/embeddings_jinav3 --task_file data/splits/tasks.json
 
