@@ -6,6 +6,12 @@ import json
 import os
 import spacy
 from tqdm import tqdm
+from rank_bm25 import BM25Okapi
+from bm25_pt import BM25
+import matplotlib.pyplot as plt
+from transformers import AutoTokenizer
+
+from src.utils import log_info
 
 class BaseModel:
     def __init__(self, device="cuda", show_progress_bar=True, batch_size=128, k=10):
@@ -113,7 +119,42 @@ class EmbeddingModel(BaseModel):
         else:
             return vectorized_map(idx_sim)
     
+class BM25Model(BaseModel):
+    def __init__(self, df_fc,  model_name="BM25Okapi", device="cuda", show_progress_bar=True, batch_size=128, k=10, **kwargs):
+        super().__init__(device, show_progress_bar, batch_size, k)
+        
+        self.model_name = model_name
+        self.model = None
+        
+        if model_name == "BM25Okapi":
+            self.model = BM25Okapi
+            self.emb_fc = self.model(df_fc["full_text"].str.split().values)
+        elif model_name == "BM25-PT":
+            tokenizer = AutoTokenizer.from_pretrained('/gpfs/projects/bsc14/abecerr1/hub/models--bert-base-uncased/snapshots/86b5e0934494bd15c9632b12f734a8a67f723594')
+            self.model = BM25(device=device, tokenizer=tokenizer)
+            self.model.index(df_fc["full_text"].values.tolist())
+            
+        self.pos_to_idx = {pos: idx for pos, idx in enumerate(df_fc.index)}
+        
+    def predict(self, texts, scores=False, limit_k=True):
+        
+        if self.model_name == "BM25Okapi":
+            sim = np.array([self.emb_fc.get_scores(text.split()) for text in tqdm(texts, desc="Processing texts")])
+        elif self.model_name == "BM25-PT":
+            sim = self.model.score_batch(list(texts)).cpu().numpy()
 
+        idx_sim = np.argsort(-sim, axis=1)
+        # Apply the function element-wise to the array
+        vectorized_map = np.vectorize(lambda x: self.pos_to_idx.get(x, None))
+        
+        if scores:
+            if limit_k:
+                return vectorized_map(idx_sim)[:, :self.k], np.sort(sim, axis=1)[:, ::-1][:, :self.k]
+            else:
+                return vectorized_map(idx_sim), sim
+        else:
+            return vectorized_map(idx_sim)
+             
 class CrossencoderModel(BaseModel):
     
     '''
@@ -135,6 +176,138 @@ class CrossencoderModel(BaseModel):
         pos_ids = self.model.rank(posts, cands_list_text, show_progress_bar=self.show_progress_bar, batch_size=self.batch_size, top_k=self.k, convert_to_numpy=True)
         pos_ids = [pos_id["corpus_id"] for pos_id in pos_ids]
         return np.array(cands_list)[pos_ids] # type: ignore
+
+
+class FusionModel(BaseModel):
+    def __init__(self, df_fc, model1, model2, k=10, output_folder=None):
+        """
+        Initialize the FusionModel with two base models.
+
+        Args:
+            model1: The first base model (e.g., dense model).
+            model2: The second base model (e.g., BM25 model).
+            k: Number of top predictions to consider.
+        """
+        
+        self.model1 = model1
+        self.model2 = model2
+        self.k = k
+        self.best_ratio = None
+        self.output_folder = output_folder
+        
+        # self.emb_fc = self.model(df_fc["full_text"].str.split().values)
+        self.pos_to_idx = {pos: idx for pos, idx in enumerate(df_fc.index)}
+    
+
+    def fit(self, df1, df2, task_name, lang, start=0, stop=1, steps=100, score_k=10):
+        """
+        Find the best fusion ratio by optimizing evaluation scores.
+
+        Args:
+            df1: DataFrame for model1 containing the 'full_text' column.
+            df2: DataFrame for model2 containing the 'full_text' column.
+            task_name: Task name for evaluation (e.g., 'monolingual', 'crosslingual').
+            lang: Language code for evaluation.
+            start: Start value for ratio range.
+            stop: Stop value for ratio range.
+            steps: Number of steps for ratio search.
+            score_k: Value of k to evaluate during ratio optimization.
+
+        Returns:
+            Tuple containing the best ratio and corresponding maximum score.
+        """
+        vectorized_map = np.vectorize(lambda x: self.model1.pos_to_idx.get(x, None))
+
+        # Get similarity scores from both models
+        _, sim_dense = self.model1.predict(df1["full_text"].values, scores=True, limit_k=False)
+        _, sim_bm25 = self.model2.predict(df2["full_text"].values, scores=True, limit_k=False)
+
+        # Normalize the scores
+        sim_bm25_norm = (sim_bm25 - sim_bm25.min(axis=1, keepdims=True)) / (
+            sim_bm25.max(axis=1, keepdims=True) - sim_bm25.min(axis=1, keepdims=True) + 1e-6
+        )
+        sim_dense_norm = (sim_dense - sim_dense.min(axis=1, keepdims=True)) / (
+            sim_dense.max(axis=1, keepdims=True) - sim_dense.min(axis=1, keepdims=True) + 1e-6
+        )
+
+        ## TODO: The index mapping is what causes the maximum delay in the code. This can be done at the 
+        # end of the optimization process.
+        plot_scores = []
+        ratios = np.linspace(start, stop, num=steps)
+        for ratio in tqdm(ratios, desc="Optimizing ratio"):
+            log_info(f"Start with ratio: {ratio}")
+            
+            log_info("Calculating combined similarity")
+            combined_sim = ratio * sim_bm25_norm + (1 - ratio) * sim_dense_norm
+            
+            log_info("Sorting combined similarity")
+            idx_sim = np.argsort(-combined_sim, axis=1)
+
+            log_info("Mapping indices")
+            df1["preds"] = vectorized_map(idx_sim).tolist()
+            
+            log_info("Evaluating")
+            d_out = self.model1.evaluate(df1, task_name=task_name, lang=lang, ls_k=[score_k])
+
+            log_info("Appending scores")
+            plot_scores.append(d_out[task_name][lang][score_k])
+
+            log_info(f"End with ratio: {ratio} and score: {plot_scores[-1]}")
+
+        max_id = np.argmax(plot_scores)
+        self.best_ratio = ratios[max_id]
+        max_score = plot_scores[max_id]
+
+        if self.output_folder is not None:
+            # Plot the scores
+            plt.plot(ratios, plot_scores)
+            plt.title(f"Max Score: {max_score:.2f}\nRatio: {self.best_ratio:.2f}")
+            plt.xlabel("Fusion Ratio")
+            plt.ylabel(f"Success@{score_k}")
+            plt.savefig("")
+
+        return self.best_ratio, max_score
+
+    def predict(self, dense_texts, sparse_texts, ratio=None, scores=False, limit_k=True):
+        """
+        Perform prediction by fusing the results of the two models.
+
+        Args:
+            dense_texts: Array for model1 containing the 'full_text' column (preprocessed for dense model).
+            sparse_texts: Array for model2 containing the 'full_text' column (preprocessed for sparse model).
+            ratio: Fusion ratio. If None, the best ratio found during fit is used.
+
+        Returns:
+            Combined predictions as a list.
+        """
+        if ratio is None:
+            if self.best_ratio is None:
+                raise ValueError("Model has not been fitted. Please call fit() before predict().")
+            ratio = self.best_ratio
+
+        _, sim_dense = self.model1.predict(dense_texts, scores=True, limit_k=False)
+        _, sim_bm25 = self.model2.predict(sparse_texts, scores=True, limit_k=False)
+
+        sim_bm25_norm = (sim_bm25 - sim_bm25.min(axis=1, keepdims=True)) / (
+            sim_bm25.max(axis=1, keepdims=True) - sim_bm25.min(axis=1, keepdims=True) + 1e-6
+        )
+        sim_dense_norm = (sim_dense - sim_dense.min(axis=1, keepdims=True)) / (
+            sim_dense.max(axis=1, keepdims=True) - sim_dense.min(axis=1, keepdims=True) + 1e-6
+        )
+
+        sim = ratio * sim_bm25_norm + (1 - ratio) * sim_dense_norm
+        idx_sim = np.argsort(-sim, axis=1)
+
+        vectorized_map = np.vectorize(lambda x: self.model1.pos_to_idx.get(x, None))
+
+        if scores:
+            if limit_k:
+                return vectorized_map(idx_sim)[:, :self.k], np.sort(sim, axis=1)[:, ::-1][:, :self.k]
+            else:
+                return vectorized_map(idx_sim), sim
+        else:
+            return vectorized_map(idx_sim)
+        
 
 class IEModel(BaseModel):
     '''
