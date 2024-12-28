@@ -1,19 +1,22 @@
 import numpy as np
 import pandas as pd
 
-def generate_triplets(df_queries, df_passages, teacher_model, n_candidates, neg_perc_threshold, random_state=42, df_queries_clean=None):
+def generate_triplets(df_queries, df_passages, teacher_model, n_candidates, neg_perc_threshold, random_state=42, df_queries_clean=None,
+                      precomputed_idx_sim=None):
         # Retrieve similarity scores
         df_train_posts_pairs = df_queries[["full_text", "gs"]].copy()
         df_train_posts_pairs_clean = df_queries_clean[["full_text", "gs"]].copy()
         
         # idx contains the indices sorted by similarity, sim contains the similarity scores without sorting
-        
-        if df_queries_clean is not None: # This is for the fusion when theres a different set of queries for each model
-                idx, sim = teacher_model.predict(df_train_posts_pairs["full_text"].values, df_train_posts_pairs_clean["full_text"].values,
-                                                 scores=True, limit_k=False)
-                print(idx.shape, sim.shape)
+        if precomputed_idx_sim is not None:
+                if df_queries_clean is not None: # This is for the fusion when theres a different set of queries for each model
+                        idx, sim = teacher_model.predict(df_train_posts_pairs["full_text"].values, df_train_posts_pairs_clean["full_text"].values,
+                                                        scores=True, limit_k=False)
+                        print(idx.shape, sim.shape)
+                else:
+                        idx, sim = teacher_model.predict(df_train_posts_pairs["full_text"].values, scores=True, limit_k=False)
         else:
-                idx, sim = teacher_model.predict(df_train_posts_pairs["full_text"].values, scores=True, limit_k=False)
+                idx, sim = precomputed_idx_sim
                 
         sorted_sim = np.sort(sim, axis=1)[:, ::-1]
 
