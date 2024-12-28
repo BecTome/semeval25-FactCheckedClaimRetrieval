@@ -11,8 +11,6 @@ from time import time
 import pandas as pd
 pd.set_option('display.max_columns', None)
 import numpy as np
-import spacy
-import torch
 
 from sentence_transformers import CrossEncoder
 from torch.utils.data import DataLoader
@@ -24,15 +22,15 @@ from sklearn.model_selection import train_test_split
 import math
 
 # Importing from src
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from src.datasets import TextConcatFactCheck, TextConcatPosts
-from src.models import BM25Model, EmbeddingModel, FusionModel
+from src.models import EmbeddingModel
 from src import config
-from src.utils import log_info, cleaning_spacy_batch
+from src.utils import log_info
 from src.contrastive import generate_triplets
 
 
-def run_task(tasks_path, task_name, langs, dense_model_name, sparse_model_name, reranker_model_name, output_path, model_save_path, triplets_path=None, d_config={}):
+def run_task(tasks_path, task_name, langs, teacher_model_name, reranker_model_name, output_path, model_save_path, triplets_path=None, d_config={}):
     """
     Run the task with the given parameters.
     """
@@ -40,14 +38,13 @@ def run_task(tasks_path, task_name, langs, dense_model_name, sparse_model_name, 
     
     if output_path is not None:
         output_path = os.path.join(output_path, task_name, current_time)
-
+    
     langs = ["eng"] if task_name == "crosslingual" else langs
     
     log_info(f"Task: {task_name}")
     log_info(f"Tasks path: {tasks_path}")
     log_info(f"Languages: {langs}")
-    log_info(f"Dense Model: {dense_model_name}")
-    log_info(f"Sparse Model: {sparse_model_name}")
+    log_info(f"Teacher Model: {teacher_model_name}")
     log_info(f"Reranker Model: {reranker_model_name}")
     log_info(f"Output path: {output_path}\n")
     log_info(f"Triplets path: {triplets_path}\n")
@@ -63,7 +60,7 @@ def run_task(tasks_path, task_name, langs, dense_model_name, sparse_model_name, 
     pct_warmup = d_config.get("pct_warmup", 0.1)                        # Percentage of warmup steps (PARTLY TUNEABLE)
     output_k = d_config.get("output_k", 10)                             # Number of outputs to consider (NO NEED TO TUNE)
     optimizer_params = d_config.get("optimizer_params", {"lr": 2e-5})   # Optimizer parameters (TUNEABLE PARAMETERS. EXPLORE MORE)
-    emb_batch_size = d_config.get("emb_batch_size", 64)                # Batch size for embedding model (NO NEED TO TUNE)
+    emb_batch_size = d_config.get("emb_batch_size", 256)                # Batch size for embedding model (NO NEED TO TUNE)
     n_candidates = d_config.get("n_candidates", 100)                    # Candidates to consider for reranking (TUNEABLE PARAMETER)
     n_neg_candidates = d_config.get("n_neg_candidates", 4)              # Number of negative candidates to consider (TUNEABLE PARAMETER. BEWARE OF UNBALANCE AND METRIC)
     neg_perc_threshold = d_config.get("neg_perc_threshold", 0.9)        # Negative percentage threshold. Only consider as negatives candidates with a score below 
@@ -89,9 +86,6 @@ def run_task(tasks_path, task_name, langs, dense_model_name, sparse_model_name, 
     df_eval.index.name = "k"
     
     for lang in tqdm(langs, desc="Languages"):
-        # Clear GPU memory
-        torch.cuda.empty_cache()
-        
         if model_save_path is not None:
             model_save_path = os.path.join(model_save_path, f"{task_name}_{lang}_reranker")
             if not os.path.exists(model_save_path):
@@ -105,50 +99,21 @@ def run_task(tasks_path, task_name, langs, dense_model_name, sparse_model_name, 
         posts = TextConcatPosts(posts_path, tasks_path, task_name=task_name, gs_path=gs_path, lang=lang, version="english")
         log_info(f"Loaded {len(posts)}")
         log_info(f"Time taken: {time() - time_start:.2f}s\n")
-
-        log_info("Loading clean posts...")
-        time_start = time()
-        nlp = spacy.load("en_core_web_lg")
-        posts_clean = TextConcatPosts(posts_path, tasks_path, task_name=task_name, gs_path=gs_path, lang=lang, 
-                                      version="english", cleaning_function=lambda x: cleaning_spacy_batch(x, nlp))
         
-        log_info(f"Loaded {len(posts_clean)}")
-        log_info(f"Time taken: {time() - time_start:.2f}s\n")
- 
-        log_info("Loading clean fact checks..")
+        log_info("Loading fact checks..")
         time_start = time()
-        fact_checks = TextConcatFactCheck(fact_checks_path, tasks_path, task_name=task_name, lang=lang, 
-                                                version="english", cleaning_function=lambda x: cleaning_spacy_batch(x, nlp))
+        fact_checks = TextConcatFactCheck(fact_checks_path, tasks_path, task_name=task_name, lang=lang, version="english")
         log_info(f"Loaded {len(fact_checks)}")
         log_info(f"Time taken: {time() - time_start:.2f}s\n")
-        
-        df_fc = fact_checks.df
-        df_fc_clean = fact_checks.df_clean
-        
-        df_posts_train = posts.df_train
-        df_posts_train_clean = posts_clean.df_train
-        
-        df_posts_dev = posts.df_dev
-        df_posts_dev_clean = posts_clean.df_dev
-    
-        log_info(f"Loading Dense Model: {dense_model_name}...")
-        time_start = time()
-        dense_model = EmbeddingModel(dense_model_name, df_fc, batch_size=emb_batch_size)
-        log_info(f"Time taken Loading Teacher Model: {time() - time_start:.2f}s\n")
-        
-        log_info(f"Loading Sparse Model: {sparse_model_name}...")
-        time_start = time()
-        sparse_model = BM25Model(df_fc=df_fc_clean, model_name=sparse_model_name)
-        log_info(f"Time taken Loading Sparse Model: {time() - time_start:.2f}s\n")
-        
-        log_info(f"Create Fusion Model...")
-        time_start = time()
-        fusion_model = FusionModel(model1=dense_model, model2=sparse_model, df_fc=df_fc, output_folder=output_path)
-        best_ratio, max_score, final_idx, final_sim = fusion_model.fit(df_posts_train, df_posts_train_clean, task_name, 
-                                                                       lang, patience=0.1, steps=100)
-        precomputed_idx_sim = (final_idx, final_sim)
-        log_info(f"Time taken Creating Fusion Model: {time() - time_start:.2f}s\n")
 
+        df_fc = fact_checks.df
+        df_posts_train = posts.df_train
+        df_posts_dev = posts.df_dev
+    
+        log_info(f"Loading Teacher Model: {teacher_model_name}...")
+        time_start = time()
+        teacher_model = EmbeddingModel(teacher_model_name, df_fc, batch_size=emb_batch_size)
+        log_info(f"Time taken Loading Teacher Model: {time() - time_start:.2f}s\n")
         
         log_info(f"Generating triplets...")
         time_start = time()
@@ -156,8 +121,7 @@ def run_task(tasks_path, task_name, langs, dense_model_name, sparse_model_name, 
             df_cl = pd.read_csv(triplets_path)
             log_info(f"Loaded {len(df_cl)} triplets from {triplets_path} in {time() - time_start:.2f}s\n")
         else:
-            df_cl = generate_triplets(df_posts_train, df_fc, fusion_model, n_candidates=n_neg_candidates, neg_perc_threshold=neg_perc_threshold,
-                                      df_queries_clean=df_posts_train_clean, precomputed_idx_sim=precomputed_idx_sim)
+            df_cl = generate_triplets(df_posts_train, df_fc, teacher_model, n_candidates=n_neg_candidates, neg_perc_threshold=neg_perc_threshold)
             log_info(f"Time taken TRIPLETS GENERATION: {time() - time_start:.2f}s\n")
 
         if model_save_path is not None:
@@ -193,11 +157,7 @@ def run_task(tasks_path, task_name, langs, dense_model_name, sparse_model_name, 
                         
         log_info("Predicting...")
         time_start = time()
-        arr_cands = fusion_model.predict(dense_texts=df_posts_dev["full_text"].values, 
-                                         sparse_texts=df_posts_dev_clean["full_text"].values
-                                         )[:,:n_candidates]
-        
-        assert arr_cands.shape[1] == n_candidates, f"Number of candidates is not {n_candidates} but {arr_cands.shape[1]}"
+        arr_cands = teacher_model.predict(df_posts_dev["full_text"].values)[:,:n_candidates]
         
         # df_dev_out = df_posts_dev[["full_text", "gs"]].copy()
         ls_preds = []
@@ -214,7 +174,7 @@ def run_task(tasks_path, task_name, langs, dense_model_name, sparse_model_name, 
         log_info("Evaluating...")
         log_info(f"Dev shape: {df_posts_dev.shape}")
         time_start = time()
-        d_eval_i = fusion_model.evaluate(df_posts_dev, task_name=task_name, lang=lang, output_folder=output_path)
+        d_eval_i = teacher_model.evaluate(df_posts_dev, task_name=task_name, lang=lang, output_folder=output_path)
         
         log_info(f"Time taken: {time() - time_start:.2f}s\n")
         
@@ -246,11 +206,10 @@ def main():
     # Argument parser
     parser = argparse.ArgumentParser(description='Run embedding prediction task.')
     parser.add_argument('--task_name', type=str, required=True, help="Choose 'monolingual' or 'crosslingual'")
-    parser.add_argument('--dense_model_name', type=str, required=True, help="Path to the dense model")
+    parser.add_argument('--teacher_model_name', type=str, required=True, help="Path to the teacher model")
     parser.add_argument('--reranker_model_name', type=str, required=True, help="Path to the reranker model")
     parser.add_argument('--triplets_path', type=str, default=None, help="Path to the triplets file")
     
-    parser.add_argument('--sparse_model_name', type=str, default="BM25Okapi", help="Path to the dense model")
     parser.add_argument('--output_path', type=str, default=None, help="Directory to save output")
     parser.add_argument('--model_save_path', type=str, default=None, help="Directory to save model")
     parser.add_argument('--task_file', type=str, default=config.TASKS_PATH, help="Path to the task file")
@@ -258,14 +217,7 @@ def main():
 
     args = parser.parse_args()
 
-    run_task(tasks_path=args.task_file, 
-             task_name=args.task_name, 
-             langs=args.langs, 
-             dense_model_name=args.dense_model_name, 
-             sparse_model_name=args.sparse_model_name, 
-             reranker_model_name=args.reranker_model_name, 
-             output_path=args.output_path, 
-             model_save_path=args.model_save_path)
+    run_task(args.task_file, args.task_name, args.langs, args.teacher_model_name, args.reranker_model_name, args.output_path, args.model_save_path)
 
 if __name__ == "__main__":
     main()

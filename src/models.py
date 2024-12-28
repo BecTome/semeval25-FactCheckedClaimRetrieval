@@ -10,6 +10,7 @@ from rank_bm25 import BM25Okapi
 from bm25_pt import BM25
 import matplotlib.pyplot as plt
 from transformers import AutoTokenizer
+from sklearn.model_selection import KFold
 
 from src.utils import log_info
 
@@ -199,9 +200,21 @@ class FusionModel(BaseModel):
         self.pos_to_idx = {pos: idx for pos, idx in enumerate(df_fc.index)}
     
 
-    def fit(self, df1, df2, task_name, lang, start=0, stop=1, steps=100, score_k=10):
+    def fit(
+        self,
+        df1,
+        df2,
+        task_name,
+        lang,
+        start=0,
+        stop=1,
+        steps=20,
+        score_k=10,
+        patience=5,
+        n_splits=5,
+    ):
         """
-        Find the best fusion ratio by optimizing evaluation scores.
+        Find the best fusion ratio using cross-validation and plot CV average scores with standard deviation.
 
         Args:
             df1: DataFrame for model1 containing the 'full_text' column.
@@ -212,17 +225,23 @@ class FusionModel(BaseModel):
             stop: Stop value for ratio range.
             steps: Number of steps for ratio search.
             score_k: Value of k to evaluate during ratio optimization.
+            patience: Early stopping patience (integer or proportion of steps).
+            n_splits: Number of folds for cross-validation.
 
         Returns:
-            Tuple containing the best ratio and corresponding maximum score.
+            Tuple containing the best ratio, corresponding maximum score, and cross-validation details.
         """
-        vectorized_map = np.vectorize(lambda x: self.model1.pos_to_idx.get(x, None))
+        # Initialize vectorized mapping function
+        vectorized_map = np.vectorize(lambda x: self.pos_to_idx.get(x, None))
 
-        # Get similarity scores from both models
+        # Precompute similarity scores for the entire dataset
+        log_info("Computing similarity scores from model1 (dense)")
         _, sim_dense = self.model1.predict(df1["full_text"].values, scores=True, limit_k=False)
+        log_info("Computing similarity scores from model2 (BM25)")
         _, sim_bm25 = self.model2.predict(df2["full_text"].values, scores=True, limit_k=False)
 
         # Normalize the scores
+        log_info("Normalizing similarity scores")
         sim_bm25_norm = (sim_bm25 - sim_bm25.min(axis=1, keepdims=True)) / (
             sim_bm25.max(axis=1, keepdims=True) - sim_bm25.min(axis=1, keepdims=True) + 1e-6
         )
@@ -230,43 +249,113 @@ class FusionModel(BaseModel):
             sim_dense.max(axis=1, keepdims=True) - sim_dense.min(axis=1, keepdims=True) + 1e-6
         )
 
-        ## TODO: The index mapping is what causes the maximum delay in the code. This can be done at the 
-        # end of the optimization process.
-        plot_scores = []
+        patience = int(patience * steps) if patience < 1 else int(patience)
+        
+        # Define fusion ratios
         ratios = np.linspace(start, stop, num=steps)
-        for ratio in tqdm(ratios, desc="Optimizing ratio"):
-            log_info(f"Start with ratio: {ratio}")
+        log_info(f"Evaluating {steps} fusion ratios from {start} to {stop}")
+
+        # Initialize cross-validation
+        kf = KFold(n_splits=n_splits, shuffle=True, random_state=42)
+        log_info(f"Starting cross-validation with {n_splits} folds")
+
+        # Initialize array to store scores: rows=ratios, columns=folds
+        cv_scores = np.zeros((steps, n_splits))
+
+        # Iterate over each ratio
+        for ratio_idx, ratio in enumerate(tqdm(ratios, desc="Evaluating ratios")):
+            log_info(f"Evaluating ratio {ratio_idx + 1}/{steps}: {ratio:.4f}")
+
+            # Iterate over each fold
+            for fold_idx, (_, val_idx) in enumerate(kf.split(df1)):
+                log_info(f"  Fold {fold_idx + 1}/{n_splits}")
+
+                # Compute combined similarity for validation set
+                combined_sim_val = (
+                    ratio * sim_bm25_norm[val_idx] + (1 - ratio) * sim_dense_norm[val_idx]
+                )
+                log_info("    Combined similarity computed")
+
+                # Get top-k indices based on combined similarity
+                idx_sim_val = np.argsort(-combined_sim_val, axis=1)[:, :score_k]
+                log_info("    Top-k indices selected")
+
+                # Map indices to predictions
+                preds_val = vectorized_map(idx_sim_val).tolist()
+
+                # Create a copy of the validation DataFrame to avoid modifying the original
+                val_df1 = df1.iloc[val_idx].copy()
+                val_df1["preds"] = preds_val
+                log_info("    Predictions mapped")
+
+                # Evaluate the predictions
+                d_out = self.model1.evaluate(
+                    val_df1, task_name=task_name, lang=lang, ls_k=[score_k]
+                )
+                log_info("    Evaluation completed")
+
+                # Store the score
+                cv_scores[ratio_idx, fold_idx] = d_out[task_name][lang][score_k]
+                log_info(
+                    f"    Fold {fold_idx + 1} Score: {cv_scores[ratio_idx, fold_idx]:.4f}"
+                )
+
+            assert cv_scores.shape[1] == n_splits, "Number of folds does not match"
+            assert cv_scores.shape[0] == steps, "Number of ratios does not match"
             
-            log_info("Calculating combined similarity")
-            combined_sim = ratio * sim_bm25_norm + (1 - ratio) * sim_dense_norm
+            if (patience is not None and ratio_idx >= patience and 
+                np.all(cv_scores[ratio_idx - patience : ratio_idx + 1, :].mean(axis=1) <= cv_scores[ratio_idx - patience, :].mean())
+            ):
+                log_info(
+                    f"Early stopping at ratio {ratio:.4f} after {patience} steps without improvement"
+                )
+                ratios = ratios[: ratio_idx + 1]
+                cv_scores = cv_scores[: ratio_idx + 1, :]
+                break
             
-            log_info("Sorting combined similarity")
-            idx_sim = np.argsort(-combined_sim, axis=1)
+        # Compute mean and standard deviation across folds for each ratio
+        mean_scores = np.mean(cv_scores, axis=1)
+        std_scores = np.std(cv_scores, axis=1)
+        log_info("Cross-validation scores aggregated")
 
-            log_info("Mapping indices")
-            df1["preds"] = vectorized_map(idx_sim).tolist()
+        # Identify the best ratio based on the highest mean score
+        best_ratio_idx = np.argmax(mean_scores)
+        self.best_ratio = ratios[best_ratio_idx]
+        max_score = mean_scores[best_ratio_idx]
+        log_info(
+            f"Best ratio determined: {self.best_ratio:.4f} with average score {max_score:.4f}"
+        )
+
+        # Save the plot if an output folder is specified
+        if self.output_folder:
+            os.makedirs(self.output_folder, exist_ok=True)
+            plot_path = os.path.join(self.output_folder, f"cv_fusion_plot_{task_name}_{lang}.png")
             
-            log_info("Evaluating")
-            d_out = self.model1.evaluate(df1, task_name=task_name, lang=lang, ls_k=[score_k])
-
-            log_info("Appending scores")
-            plot_scores.append(d_out[task_name][lang][score_k])
-
-            log_info(f"End with ratio: {ratio} and score: {plot_scores[-1]}")
-
-        max_id = np.argmax(plot_scores)
-        self.best_ratio = ratios[max_id]
-        max_score = plot_scores[max_id]
-
-        if self.output_folder is not None:
-            # Plot the scores
-            plt.plot(ratios, plot_scores)
-            plt.title(f"Max Score: {max_score:.2f}\nRatio: {self.best_ratio:.2f}")
-            plt.xlabel("Fusion Ratio")
+            # Plotting the results with error bars
+            plt.figure(figsize=(12, 7))
+            plt.errorbar(ratios, mean_scores, yerr=std_scores, fmt="-o", ecolor="lightgray",elinewidth=3,
+                capsize=0, label="CV Average Score ± Std Dev",
+            )
+            plt.axvline(x=self.best_ratio, color="red", linestyle="--", label=f"Best Ratio: {self.best_ratio:.4f}")
+            plt.title(f"Cross-Validation Results for {task_name} ({lang})\nBest Ratio: {self.best_ratio:.4f}, "
+                        f"Max Avg Score: {max_score:.4f}"
+            )
+            plt.xlabel("Fusion Ratio (BM25 Weight)")
             plt.ylabel(f"Success@{score_k}")
-            plt.savefig("")
+            plt.legend()
+            plt.grid(True)
+            plt.tight_layout()
+            # Save the plot
+            plt.savefig(plot_path)
+            log_info(f"Fusion plot saved to {plot_path}")
 
-        return self.best_ratio, max_score
+        # Display the plot
+        # plt.show()
+
+        final_sim = self.best_ratio * sim_bm25_norm + (1 - self.best_ratio) * sim_dense_norm
+        idx_sim = vectorized_map(np.argsort(-final_sim, axis=1))
+        
+        return self.best_ratio, max_score, idx_sim, final_sim
 
     def predict(self, dense_texts, sparse_texts, ratio=None, scores=False, limit_k=True):
         """
