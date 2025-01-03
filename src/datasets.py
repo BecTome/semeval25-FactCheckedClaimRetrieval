@@ -9,7 +9,7 @@ from tqdm import tqdm
 tqdm.pandas()
 
 from src import cleaning
-
+from src import config
 class Dataset:
     """
     This is the base class for all datasets. It loads the data and tasks dictionary.
@@ -44,8 +44,18 @@ class Dataset:
         self.langs = list(self.tasks["monolingual"].keys())
         
 
+        d_lan = {}
         # This ensures we don't get an error in multilingual case
-        d_lan = self.get_if_exists(self.tasks[self.task_name], self.lang)
+        if self.lang != "all":
+            d_lan = self.get_if_exists(self.tasks[self.task_name], self.lang)
+        else:
+            for lang in self.langs:
+                d_lan_i = self.get_if_exists(self.tasks[self.task_name], lang)
+                d_lan["posts_train"] = d_lan.get("posts_train", []) + d_lan_i.get("posts_train", [])
+                d_lan["posts_dev"] = d_lan.get("posts_dev", []) + d_lan_i.get("posts_dev", [])
+                d_lan["fact_checks"] = d_lan.get("fact_checks", []) + d_lan_i.get("fact_checks", [])
+
+        
         self.idx_train, self.idx_dev = d_lan["posts_train"], d_lan["posts_dev"]
         self.idx_fc = d_lan["fact_checks"]
 
@@ -120,20 +130,18 @@ class BasePostsDataset(Dataset):
 
 
     def preprocess_data(self):
-        if self.lang == "all":
-            df_posts = self.load_data()
-        else:
-            df_posts = self.load_data(indices=self.idx_train+self.idx_dev)
+
+        df_posts = self.load_data(indices=self.idx_train+self.idx_dev)
         
         # Get the language of the text in order to stratify the data in crosslingual case
         text_lan = df_posts["text"].apply(lambda x: x[-1][0][0] if isinstance(x, tuple) else x)
         ocr_lan = df_posts["ocr"].apply(lambda x: x[0][-1][0][0] if (isinstance(x, list)&len(x)>0) else "")
         
-        text_lan_simp = text_lan.apply(lambda x: x if (x in self.langs or len(x)==0) else "other")
-        ocr_lan_simp = ocr_lan.apply(lambda x: x if (x in self.langs or len(x)==0) else "other")
+        # text_lan_simp = text_lan.apply(lambda x: x if (x in self.langs or len(x)==0) else "other")
+        # ocr_lan_simp = ocr_lan.apply(lambda x: x if (x in self.langs or len(x)==0) else "other")
         
-        df_posts["lan"] = text_lan_simp
-        df_posts.loc[text_lan_simp.apply(len) == 0, "lan"] = ocr_lan_simp.loc[text_lan_simp.apply(len) == 0]
+        df_posts["lan"] = text_lan
+        df_posts.loc[text_lan.apply(len) == 0, "lan"] = ocr_lan.loc[text_lan.apply(len) == 0]
         
         df_posts["text"] = df_posts["text"].apply(lambda x: x[self.idx_lang] if isinstance(x, tuple) else x)
         df_posts["ocr"] = df_posts["ocr"].apply(lambda x: " ".join(trip[self.idx_lang] for trip in x))
@@ -210,25 +218,31 @@ class TextConcatPosts(BasePostsDataset):
     version: Version of the dataset (default: None) Options ["english", "original"]
     """
     
-    def __init__(self, posts_path, tasks_path, task_name, lang="eng", version="original", gs_path=None, demojize=False, prefix="", cleaning_function=None, clean=False, **kwargs):
+    def __init__(self, posts_path, tasks_path, task_name, lang="eng", version="original", gs_path=None, demojize=False, prefix="", cleaning_function=None, clean=False, lang_prompt=False, **kwargs):
         self.demojize = demojize
         self.prefix = prefix
         self.clean = clean
         self.cleaning_function = cleaning_function
+        self.lang_prompt = lang_prompt
         super().__init__(posts_path, tasks_path, task_name, lang, version, gs_path, **kwargs)
     
 
     def preprocess_data(self):
         df_posts = super().preprocess_data()
         df_posts["full_text"] = self.prefix + df_posts["ocr"] + " " + df_posts["text"]
-        # df_posts["full_text"].str.lower()
+        
+        if self.lang_prompt:
+            df_lans = df_posts["lan"].map(config.LANG_COUNTRY).fillna("")
+            df_posts["full_text"] = df_lans + " : " + df_posts["full_text"]
+        
         if self.demojize:
             df_posts["full_text"] = df_posts["full_text"].apply(lambda x: emoji.demojize(x))
         
         if self.clean:
             df_posts["full_text"] = df_posts["full_text"].str.replace(cleaning.url_regex, "", regex=True)\
                                                          .str.replace(cleaning.emoji_regex, "", regex=True)\
-                                                         .str.replace(cleaning.sentence_stop_regex, ".", regex=True)
+                                                         .str.replace(cleaning.sentence_stop_regex, ".", regex=True)\
+                                                         .str.replace("\[.+\]", "", regex=True)
         if self.cleaning_function:
             df_posts["full_text"] = self.cleaning_function(df_posts["full_text"].values)
             
@@ -271,3 +285,4 @@ class TextConcatFactCheck(BaseFactCheckDataset):
             self.df_clean["full_text"] = self.cleaning_function(self.df_clean["full_text"].values)
             
         return df_fact_check    
+    
