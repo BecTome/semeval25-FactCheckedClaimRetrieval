@@ -3,8 +3,8 @@
 #SBATCH -D .
 #SBATCH -A bsc14
 #SBATCH --qos=acc_bscls
-#SBATCH --output=output/contrastive/snowflakelogs/log_%j.out
-#SBATCH --error=output/contrastive/snowflakelogs/log_%j.err
+#SBATCH --output=output/contrastive/snowflake/mono/log_%j.out
+#SBATCH --error=output/contrastive/snowflake/mono/log_%j.err
 #SBATCH --ntasks=1
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=32

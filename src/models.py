@@ -55,17 +55,22 @@ class BaseModel:
             d_eval[task_name][lang][k] = df_eval.apply(lambda x: len(list((set(x["preds"][:k]) & set(x["gs"])))) > 0, axis=1).mean()
             # d_eval[task_name][lang]["individual"][k] = df_eval.explode("gs").apply(lambda x: x["gs"] in x["preds"][:k], axis=1).mean()
 
-        # if output_folder is not None:
-        #     eval_filename = "evaluation.json"
-        #     output_file = os.path.join(output_folder, eval_filename)
-        #     json.dump(d_eval, open(output_file, "w"), indent=4)
+        if output_folder is not None:
+            eval_filename = "evaluation.json"
+            output_file = os.path.join(output_folder, eval_filename)
+            json.dump(d_eval, open(output_file, "w"), indent=4)
             
         return d_eval
 
 class EmbeddingModel(BaseModel):
     def __init__(self, model_name, df_fc, device="cuda", show_progress_bar=True, batch_size=128, normalize_embeddings=True, k=10, model_type=None, prompt=None, **kwargs):
         super().__init__(device, show_progress_bar, batch_size, k)
-        self.model = SentenceTransformer(model_name, device=device, trust_remote_code=True)
+        
+        if isinstance(model_name, str):
+            self.model = SentenceTransformer(model_name, device=device, trust_remote_code=True)
+        else:
+            self.model = model_name
+            
         self.normalize_embeddings = normalize_embeddings
         self.model_type = model_type
         self.prompt = prompt
