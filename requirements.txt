@@ -9,3 +9,5 @@ pandas
 tqdm
 typing
 emoji
+optuna
+optuna-dashborad
