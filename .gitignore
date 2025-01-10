@@ -11,5 +11,7 @@ trials.py
 llama
 processedData
 crossencoder/
-monolingual*/
-crosslingual*/
+# monolingual*/
+# crosslingual*/
+
+!**/*_predictions.json

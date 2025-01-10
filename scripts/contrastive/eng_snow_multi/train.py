@@ -63,7 +63,7 @@ def run_task(tasks_path, task_name, langs, teacher_model_name, reranker_model_na
     emb_batch_size = d_config.get("emb_batch_size", 32)                 # Batch size for embedding model (NO NEED TO TUNE)
     n_candidates = d_config.get("n_candidates", 100)                    # Candidates to consider for reranking (TUNEABLE PARAMETER)
     n_neg_candidates = d_config.get("n_neg_candidates", 4)              # Number of negative candidates to consider (TUNEABLE PARAMETER. BEWARE OF UNBALANCE AND METRIC)
-    neg_perc_threshold = d_config.get("neg_perc_threshold", 0.9)        # Negative percentage threshold. Only consider as negatives candidates with a score below 
+    neg_perc_threshold = d_config.get("neg_perc_threshold", 0.95)        # Negative percentage threshold. Only consider as negatives candidates with a score below 
                                                                         # neg_perc_threshold * postive_score (TUNEABLE PARAMETER)
                                     
     log_info(f"Train batch size: {train_batch_size}")

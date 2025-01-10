@@ -5,11 +5,11 @@ def generate_triplets(df_queries, df_passages, teacher_model, n_candidates, neg_
                       precomputed_idx_sim=None):
         # Retrieve similarity scores
         df_train_posts_pairs = df_queries[["full_text", "gs"]].copy()
-        df_train_posts_pairs_clean = df_queries_clean[["full_text", "gs"]].copy()
         
         # idx contains the indices sorted by similarity, sim contains the similarity scores without sorting
-        if precomputed_idx_sim is not None:
+        if precomputed_idx_sim is None:
                 if df_queries_clean is not None: # This is for the fusion when theres a different set of queries for each model
+                        df_train_posts_pairs_clean = df_queries_clean[["full_text", "gs"]].copy()
                         idx, sim = teacher_model.predict(df_train_posts_pairs["full_text"].values, df_train_posts_pairs_clean["full_text"].values,
                                                         scores=True, limit_k=False)
                         print(idx.shape, sim.shape)
