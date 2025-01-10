@@ -10,4 +10,6 @@ tqdm
 typing
 emoji
 optuna
-optuna-dashborad
+optuna-dashboard
+seaborn
+matplotlib
