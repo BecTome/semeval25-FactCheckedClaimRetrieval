@@ -6,6 +6,13 @@ import json
 import os
 import spacy
 from tqdm import tqdm
+from rank_bm25 import BM25Okapi
+from bm25_pt import BM25
+import matplotlib.pyplot as plt
+from transformers import AutoTokenizer
+from sklearn.model_selection import KFold
+
+from src.utils import log_info
 
 class BaseModel:
     def __init__(self, device="cuda", show_progress_bar=True, batch_size=128, k=10):
@@ -48,17 +55,22 @@ class BaseModel:
             d_eval[task_name][lang][k] = df_eval.apply(lambda x: len(list((set(x["preds"][:k]) & set(x["gs"])))) > 0, axis=1).mean()
             # d_eval[task_name][lang]["individual"][k] = df_eval.explode("gs").apply(lambda x: x["gs"] in x["preds"][:k], axis=1).mean()
 
-        # if output_folder is not None:
-        #     eval_filename = "evaluation.json"
-        #     output_file = os.path.join(output_folder, eval_filename)
-        #     json.dump(d_eval, open(output_file, "w"), indent=4)
+        if output_folder is not None:
+            eval_filename = "evaluation.json"
+            output_file = os.path.join(output_folder, eval_filename)
+            json.dump(d_eval, open(output_file, "w"), indent=4)
             
         return d_eval
 
 class EmbeddingModel(BaseModel):
     def __init__(self, model_name, df_fc, device="cuda", show_progress_bar=True, batch_size=128, normalize_embeddings=True, k=10, model_type=None, prompt=None, **kwargs):
         super().__init__(device, show_progress_bar, batch_size, k)
-        self.model = SentenceTransformer(model_name, device=device, trust_remote_code=True)
+        
+        if isinstance(model_name, str):
+            self.model = SentenceTransformer(model_name, device=device, trust_remote_code=True)
+        else:
+            self.model = model_name
+            
         self.normalize_embeddings = normalize_embeddings
         self.model_type = model_type
         self.prompt = prompt
@@ -113,7 +125,42 @@ class EmbeddingModel(BaseModel):
         else:
             return vectorized_map(idx_sim)
     
+class BM25Model(BaseModel):
+    def __init__(self, df_fc,  model_name="BM25Okapi", device="cuda", show_progress_bar=True, batch_size=128, k=10, **kwargs):
+        super().__init__(device, show_progress_bar, batch_size, k)
+        
+        self.model_name = model_name
+        self.model = None
+        
+        if model_name == "BM25Okapi":
+            self.model = BM25Okapi
+            self.emb_fc = self.model(df_fc["full_text"].str.split().values)
+        elif model_name == "BM25-PT":
+            tokenizer = AutoTokenizer.from_pretrained('/gpfs/projects/bsc14/abecerr1/hub/models--bert-base-uncased/snapshots/86b5e0934494bd15c9632b12f734a8a67f723594')
+            self.model = BM25(device=device, tokenizer=tokenizer)
+            self.model.index(df_fc["full_text"].values.tolist())
+            
+        self.pos_to_idx = {pos: idx for pos, idx in enumerate(df_fc.index)}
+        
+    def predict(self, texts, scores=False, limit_k=True):
+        
+        if self.model_name == "BM25Okapi":
+            sim = np.array([self.emb_fc.get_scores(text.split()) for text in tqdm(texts, desc="Processing texts")])
+        elif self.model_name == "BM25-PT":
+            sim = self.model.score_batch(list(texts)).cpu().numpy()
 
+        idx_sim = np.argsort(-sim, axis=1)
+        # Apply the function element-wise to the array
+        vectorized_map = np.vectorize(lambda x: self.pos_to_idx.get(x, None))
+        
+        if scores:
+            if limit_k:
+                return vectorized_map(idx_sim)[:, :self.k], np.sort(sim, axis=1)[:, ::-1][:, :self.k]
+            else:
+                return vectorized_map(idx_sim), sim
+        else:
+            return vectorized_map(idx_sim)
+             
 class CrossencoderModel(BaseModel):
     
     '''
@@ -135,6 +182,226 @@ class CrossencoderModel(BaseModel):
         pos_ids = self.model.rank(posts, cands_list_text, show_progress_bar=self.show_progress_bar, batch_size=self.batch_size, top_k=self.k, convert_to_numpy=True)
         pos_ids = [pos_id["corpus_id"] for pos_id in pos_ids]
         return np.array(cands_list)[pos_ids] # type: ignore
+
+
+class FusionModel(BaseModel):
+    def __init__(self, df_fc, model1, model2, k=10, output_folder=None):
+        """
+        Initialize the FusionModel with two base models.
+
+        Args:
+            model1: The first base model (e.g., dense model).
+            model2: The second base model (e.g., BM25 model).
+            k: Number of top predictions to consider.
+        """
+        
+        self.model1 = model1
+        self.model2 = model2
+        self.k = k
+        self.best_ratio = None
+        self.output_folder = output_folder
+        
+        # self.emb_fc = self.model(df_fc["full_text"].str.split().values)
+        self.pos_to_idx = {pos: idx for pos, idx in enumerate(df_fc.index)}
+    
+
+    def fit(
+        self,
+        df1,
+        df2,
+        task_name,
+        lang,
+        start=0,
+        stop=1,
+        steps=20,
+        score_k=10,
+        patience=5,
+        n_splits=5,
+    ):
+        """
+        Find the best fusion ratio using cross-validation and plot CV average scores with standard deviation.
+
+        Args:
+            df1: DataFrame for model1 containing the 'full_text' column.
+            df2: DataFrame for model2 containing the 'full_text' column.
+            task_name: Task name for evaluation (e.g., 'monolingual', 'crosslingual').
+            lang: Language code for evaluation.
+            start: Start value for ratio range.
+            stop: Stop value for ratio range.
+            steps: Number of steps for ratio search.
+            score_k: Value of k to evaluate during ratio optimization.
+            patience: Early stopping patience (integer or proportion of steps).
+            n_splits: Number of folds for cross-validation.
+
+        Returns:
+            Tuple containing the best ratio, corresponding maximum score, and cross-validation details.
+        """
+        # Initialize vectorized mapping function
+        vectorized_map = np.vectorize(lambda x: self.pos_to_idx.get(x, None))
+
+        # Precompute similarity scores for the entire dataset
+        log_info("Computing similarity scores from model1 (dense)")
+        _, sim_dense = self.model1.predict(df1["full_text"].values, scores=True, limit_k=False)
+        log_info("Computing similarity scores from model2 (BM25)")
+        _, sim_bm25 = self.model2.predict(df2["full_text"].values, scores=True, limit_k=False)
+
+        # Normalize the scores
+        log_info("Normalizing similarity scores")
+        sim_bm25_norm = (sim_bm25 - sim_bm25.min(axis=1, keepdims=True)) / (
+            sim_bm25.max(axis=1, keepdims=True) - sim_bm25.min(axis=1, keepdims=True) + 1e-6
+        )
+        sim_dense_norm = (sim_dense - sim_dense.min(axis=1, keepdims=True)) / (
+            sim_dense.max(axis=1, keepdims=True) - sim_dense.min(axis=1, keepdims=True) + 1e-6
+        )
+
+        patience = int(patience * steps) if patience < 1 else int(patience)
+        
+        # Define fusion ratios
+        ratios = np.linspace(start, stop, num=steps)
+        log_info(f"Evaluating {steps} fusion ratios from {start} to {stop}")
+
+        # Initialize cross-validation
+        kf = KFold(n_splits=n_splits, shuffle=True, random_state=42)
+        log_info(f"Starting cross-validation with {n_splits} folds")
+
+        # Initialize array to store scores: rows=ratios, columns=folds
+        cv_scores = np.zeros((steps, n_splits))
+
+        # Iterate over each ratio
+        for ratio_idx, ratio in enumerate(tqdm(ratios, desc="Evaluating ratios")):
+            log_info(f"Evaluating ratio {ratio_idx + 1}/{steps}: {ratio:.4f}")
+
+            # Iterate over each fold
+            for fold_idx, (_, val_idx) in enumerate(kf.split(df1)):
+                log_info(f"  Fold {fold_idx + 1}/{n_splits}")
+
+                # Compute combined similarity for validation set
+                combined_sim_val = (
+                    ratio * sim_bm25_norm[val_idx] + (1 - ratio) * sim_dense_norm[val_idx]
+                )
+                log_info("    Combined similarity computed")
+
+                # Get top-k indices based on combined similarity
+                idx_sim_val = np.argsort(-combined_sim_val, axis=1)[:, :score_k]
+                log_info("    Top-k indices selected")
+
+                # Map indices to predictions
+                preds_val = vectorized_map(idx_sim_val).tolist()
+
+                # Create a copy of the validation DataFrame to avoid modifying the original
+                val_df1 = df1.iloc[val_idx].copy()
+                val_df1["preds"] = preds_val
+                log_info("    Predictions mapped")
+
+                # Evaluate the predictions
+                d_out = self.model1.evaluate(
+                    val_df1, task_name=task_name, lang=lang, ls_k=[score_k]
+                )
+                log_info("    Evaluation completed")
+
+                # Store the score
+                cv_scores[ratio_idx, fold_idx] = d_out[task_name][lang][score_k]
+                log_info(
+                    f"    Fold {fold_idx + 1} Score: {cv_scores[ratio_idx, fold_idx]:.4f}"
+                )
+
+            assert cv_scores.shape[1] == n_splits, "Number of folds does not match"
+            assert cv_scores.shape[0] == steps, "Number of ratios does not match"
+            
+            if (patience is not None and ratio_idx >= patience and 
+                np.all(cv_scores[ratio_idx - patience : ratio_idx + 1, :].mean(axis=1) <= cv_scores[ratio_idx - patience, :].mean())
+            ):
+                log_info(
+                    f"Early stopping at ratio {ratio:.4f} after {patience} steps without improvement"
+                )
+                ratios = ratios[: ratio_idx + 1]
+                cv_scores = cv_scores[: ratio_idx + 1, :]
+                break
+            
+        # Compute mean and standard deviation across folds for each ratio
+        mean_scores = np.mean(cv_scores, axis=1)
+        std_scores = np.std(cv_scores, axis=1)
+        log_info("Cross-validation scores aggregated")
+
+        # Identify the best ratio based on the highest mean score
+        best_ratio_idx = np.argmax(mean_scores)
+        self.best_ratio = ratios[best_ratio_idx]
+        max_score = mean_scores[best_ratio_idx]
+        log_info(
+            f"Best ratio determined: {self.best_ratio:.4f} with average score {max_score:.4f}"
+        )
+
+        # Save the plot if an output folder is specified
+        if self.output_folder:
+            os.makedirs(self.output_folder, exist_ok=True)
+            plot_path = os.path.join(self.output_folder, f"cv_fusion_plot_{task_name}_{lang}.png")
+            
+            # Plotting the results with error bars
+            plt.figure(figsize=(12, 7))
+            plt.errorbar(ratios, mean_scores, yerr=std_scores, fmt="-o", ecolor="lightgray",elinewidth=3,
+                capsize=0, label="CV Average Score ± Std Dev",
+            )
+            plt.axvline(x=self.best_ratio, color="red", linestyle="--", label=f"Best Ratio: {self.best_ratio:.4f}")
+            plt.title(f"Cross-Validation Results for {task_name} ({lang})\nBest Ratio: {self.best_ratio:.4f}, "
+                        f"Max Avg Score: {max_score:.4f}"
+            )
+            plt.xlabel("Fusion Ratio (BM25 Weight)")
+            plt.ylabel(f"Success@{score_k}")
+            plt.legend()
+            plt.grid(True)
+            plt.tight_layout()
+            # Save the plot
+            plt.savefig(plot_path)
+            log_info(f"Fusion plot saved to {plot_path}")
+
+        # Display the plot
+        # plt.show()
+
+        final_sim = self.best_ratio * sim_bm25_norm + (1 - self.best_ratio) * sim_dense_norm
+        idx_sim = vectorized_map(np.argsort(-final_sim, axis=1))
+        
+        return self.best_ratio, max_score, idx_sim, final_sim
+
+    def predict(self, dense_texts, sparse_texts, ratio=None, scores=False, limit_k=True):
+        """
+        Perform prediction by fusing the results of the two models.
+
+        Args:
+            dense_texts: Array for model1 containing the 'full_text' column (preprocessed for dense model).
+            sparse_texts: Array for model2 containing the 'full_text' column (preprocessed for sparse model).
+            ratio: Fusion ratio. If None, the best ratio found during fit is used.
+
+        Returns:
+            Combined predictions as a list.
+        """
+        if ratio is None:
+            if self.best_ratio is None:
+                raise ValueError("Model has not been fitted. Please call fit() before predict().")
+            ratio = self.best_ratio
+
+        _, sim_dense = self.model1.predict(dense_texts, scores=True, limit_k=False)
+        _, sim_bm25 = self.model2.predict(sparse_texts, scores=True, limit_k=False)
+
+        sim_bm25_norm = (sim_bm25 - sim_bm25.min(axis=1, keepdims=True)) / (
+            sim_bm25.max(axis=1, keepdims=True) - sim_bm25.min(axis=1, keepdims=True) + 1e-6
+        )
+        sim_dense_norm = (sim_dense - sim_dense.min(axis=1, keepdims=True)) / (
+            sim_dense.max(axis=1, keepdims=True) - sim_dense.min(axis=1, keepdims=True) + 1e-6
+        )
+
+        sim = ratio * sim_bm25_norm + (1 - ratio) * sim_dense_norm
+        idx_sim = np.argsort(-sim, axis=1)
+
+        vectorized_map = np.vectorize(lambda x: self.model1.pos_to_idx.get(x, None))
+
+        if scores:
+            if limit_k:
+                return vectorized_map(idx_sim)[:, :self.k], np.sort(sim, axis=1)[:, ::-1][:, :self.k]
+            else:
+                return vectorized_map(idx_sim), sim
+        else:
+            return vectorized_map(idx_sim)
+        
 
 class IEModel(BaseModel):
     '''

@@ -9,3 +9,7 @@ pandas
 tqdm
 typing
 emoji
+optuna
+optuna-dashboard
+seaborn
+matplotlib

@@ -20,4 +20,4 @@ source ~/.bashrc  # This reloads the shell to apply conda settings
 
 conda activate factcheck
 
-~/.conda/envs/factcheck/bin/python scripts/trainCrossEncoder/train.py
+/gpfs/projects/bsc14/scratch/.conda/factcheck/bin/python scripts/trainCrossEncoder/train.py

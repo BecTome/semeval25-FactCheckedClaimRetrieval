@@ -1,33 +1,47 @@
 import numpy as np
 import pandas as pd
 
-def generate_triplets(df_queries, df_passages, teacher_model, n_candidates, neg_perc_threshold, random_state=42):
+def generate_triplets(df_queries, df_passages, teacher_model, n_candidates, neg_perc_threshold, random_state=42, df_queries_clean=None,
+                      precomputed_idx_sim=None):
         # Retrieve similarity scores
         df_train_posts_pairs = df_queries[["full_text", "gs"]].copy()
-
-        idx, sim = teacher_model.predict(df_train_posts_pairs["full_text"].values, scores=True, limit_k=False)
+        
+        # idx contains the indices sorted by similarity, sim contains the similarity scores without sorting
+        if precomputed_idx_sim is None:
+                if df_queries_clean is not None: # This is for the fusion when theres a different set of queries for each model
+                        df_train_posts_pairs_clean = df_queries_clean[["full_text", "gs"]].copy()
+                        idx, sim = teacher_model.predict(df_train_posts_pairs["full_text"].values, df_train_posts_pairs_clean["full_text"].values,
+                                                        scores=True, limit_k=False)
+                        print(idx.shape, sim.shape)
+                else:
+                        idx, sim = teacher_model.predict(df_train_posts_pairs["full_text"].values, scores=True, limit_k=False)
+        else:
+                idx, sim = precomputed_idx_sim
+                
         sorted_sim = np.sort(sim, axis=1)[:, ::-1]
 
         # n_candidates = 4
         # neg_perc_threshold = 0.9
         
+        # column with the position of each post_id (df index)
         df_train_posts_pairs["post_pos"] = np.arange(len(df_train_posts_pairs))
         df_train_posts_pairs = df_train_posts_pairs.explode("gs", ignore_index=True)
         
         d_fc_idx_text = df_passages["full_text"].to_dict()
-        df_train_posts_pairs["gs_text"] = df_train_posts_pairs["gs"].map(d_fc_idx_text)
+        df_train_posts_pairs["gs_text"] = df_train_posts_pairs["gs"].map(d_fc_idx_text) # Retrieve the text of the ground truth
         
         d_idx_to_pos = {idx: pos for pos, idx in teacher_model.pos_to_idx.items()}
-        df_train_posts_pairs["gs_pos"] = df_train_posts_pairs["gs"].map(d_idx_to_pos)
-        df_train_posts_pairs["gs_score"] = df_train_posts_pairs.apply(lambda x: sim[x["post_pos"], x["gs_pos"]], axis=1)
-        df_train_posts_pairs["neg_thres"] = df_train_posts_pairs["gs_score"] * neg_perc_threshold
+        df_train_posts_pairs["gs_pos"] = df_train_posts_pairs["gs"].map(d_idx_to_pos) # Retrieve the position of the ground truth
+        df_train_posts_pairs["gs_score"] = df_train_posts_pairs.apply(lambda x: sim[x["post_pos"], x["gs_pos"]], axis=1) # Retrieve the similarity score of the ground truth
+        df_train_posts_pairs["neg_thres"] = df_train_posts_pairs["gs_score"] * neg_perc_threshold # Threshold for negative samples
         # df_train_posts_pairs["naive_topk"] = df_train_posts_pairs.apply(lambda x: idx[x["post_pos"]][idx[x["post_pos"]] != x["gs_pos"]][:n_candidates], axis=1)
 
-        mask_neg_thres = lambda col1, col2: sorted_sim[col1] < col2
-        mask_exclude_gs = lambda col1, col2: idx[col1] != col2
+        mask_neg_thres = lambda col1, col2: sorted_sim[col1] < col2 # Mask for the negative samples, i.e. the ones with similarity lower than the threshold
+        mask_exclude_gs = lambda col1, col2: idx[col1] != col2      # Make sure the ground truth is not in the negative samples
 
+        # Retrieve the indices of the negative samples (Those with similarity lower than the threshold and different from the ground truth)
         df_train_posts_pairs["idx_neg_thres"] = df_train_posts_pairs.apply(lambda x: idx[x["post_pos"]][(mask_neg_thres(x["post_pos"], x["neg_thres"])&\
-                                                                                                        mask_exclude_gs(x["post_pos"], x["gs"]))][:n_candidates], axis=1)
+                                                                                                         mask_exclude_gs(x["post_pos"], x["gs"]))][:n_candidates], axis=1)
 
         df_negatives = df_train_posts_pairs[["full_text", "idx_neg_thres"]].copy()
         df_negatives = df_negatives.explode("idx_neg_thres", ignore_index=True)
