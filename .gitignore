@@ -11,7 +11,12 @@ trials.py
 llama
 processedData
 crossencoder/
+models
 # monolingual*/
 # crosslingual*/
+official/contrastive/snowflake_mv2/models
 
 !**/*_predictions.json
+
+data/test_data/
+!data/test_data/README.md

@@ -5,8 +5,11 @@ FACT_CHECKS_PATH = "data/complete_data/fact_checks.csv"
 TASKS_PATH = "data/splits/tasks_no_gs_overlap.json"
 GS_PATH = "data/complete_data/pairs.csv"
 PHASE1_TASKS_PATH = "data/complete_data/tasks.json"
+TEST_PHASE_TASKS_PATH = "data/splits/splits_test.json"
+
 OUTPUT_PATH = "out"
 LANGS = ['eng', 'fra', 'deu', 'por', 'spa', 'tha',  'msa', 'ara']
+TEST_PHASE_LANGS = ['eng', 'fra', 'deu', 'por', 'spa', 'tha',  'msa', 'ara', 'pol', 'tur']
 
 MINILM6_EMBED = 'sentence-transformers/all-MiniLM-L6-v2'
 MINILM12_MULTILINGUAL_EMBED = 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2'

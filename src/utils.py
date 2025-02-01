@@ -1,5 +1,7 @@
 from huggingface_hub import HfApi
 from tqdm import tqdm
+import os
+import shutil
 
 def log_info(message):
     import logging
@@ -55,3 +57,20 @@ def cleaning_spacy_batch(texts, nlp, batch_size=512, n_process=32):
             " ".join([token.lemma_.lower() for token in doc if not token.is_stop and not token.is_punct])
         )
     return results
+
+def copy_directory_contents(src, dst):
+    # Ensure the destination directory exists
+    if not os.path.exists(dst):
+        os.makedirs(dst)
+    
+    # Loop through each item in the source directory
+    for item in os.listdir(src):
+        src_item = os.path.join(src, item)
+        dst_item = os.path.join(dst, item)
+        
+        if os.path.isdir(src_item):
+            # Recursively copy subdirectories
+            shutil.copytree(src_item, dst_item)
+        else:
+            # Copy files
+            shutil.copy2(src_item, dst_item)

@@ -6,6 +6,7 @@ from typing import List
 import pandas as pd
 import emoji
 from tqdm import tqdm
+import re
 tqdm.pandas()
 
 from src import cleaning
@@ -68,16 +69,20 @@ class Dataset:
     
     def load_data(self, indices=None):
         if self.index_col is None:
-            df = pd.read_csv(self.path).fillna('')
+            # df = pd.read_csv("your_dataset.csv", sep=",", quoting=3, encoding="utf-8", engine="python")
+
+            df = pd.read_csv(self.path, sep=",")
         else:
-            df = pd.read_csv(self.path).fillna('').set_index(self.index_col)
+            df = pd.read_csv(self.path, sep=",").set_index(self.index_col)
         
         if indices is not None:
             df = df.loc[indices, :]
+    
+        import ast
         
-        parse_col = lambda s: ast.literal_eval(s.replace('\n', '\\n')) if s else s
+        parse_col = lambda s: ast.literal_eval(s.replace('\n', '\\n').replace("(nan,", "(None,")) if s else s
         for col in self.iter_cols:
-            df[col] = df[col].apply(parse_col)
+            df[col] = df[col].fillna("''").apply(parse_col)
 
         return df
     
@@ -135,7 +140,7 @@ class BasePostsDataset(Dataset):
         
         # Get the language of the text in order to stratify the data in crosslingual case
         text_lan = df_posts["text"].apply(lambda x: x[-1][0][0] if isinstance(x, tuple) else x)
-        ocr_lan = df_posts["ocr"].apply(lambda x: x[0][-1][0][0] if (isinstance(x, list)&len(x)>0) else "")
+        ocr_lan = df_posts["ocr"].apply(lambda x: x[0][-1][0][0] if isinstance(x, list) and len(x) > 0 and x is not None else "")
         
         # text_lan_simp = text_lan.apply(lambda x: x if (x in self.langs or len(x)==0) else "other")
         # ocr_lan_simp = ocr_lan.apply(lambda x: x if (x in self.langs or len(x)==0) else "other")
@@ -144,7 +149,7 @@ class BasePostsDataset(Dataset):
         df_posts.loc[text_lan.apply(len) == 0, "lan"] = ocr_lan.loc[text_lan.apply(len) == 0]
         
         df_posts["text"] = df_posts["text"].apply(lambda x: x[self.idx_lang] if isinstance(x, tuple) else x)
-        df_posts["ocr"] = df_posts["ocr"].apply(lambda x: " ".join(trip[self.idx_lang] for trip in x))
+        df_posts["ocr"] = df_posts["ocr"].apply(lambda x: " ".join(trip[self.idx_lang] for trip in x) if x is not None else "")
         df_posts["verdicts"] = df_posts["verdicts"].apply(lambda x: x[0] if (isinstance(x, list))&(len(x)>0) else "")
         df_posts["instances"] = df_posts["instances"].apply(lambda x: [social for _, social in x] if len(x)>0 else [])
         df_posts["fb"] = df_posts["instances"].apply(lambda x: np.sum(np.array(x)=="fb"))

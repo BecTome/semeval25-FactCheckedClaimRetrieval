@@ -11,8 +11,10 @@ from time import time
 import pandas as pd
 pd.set_option('display.max_columns', None)
 import numpy as np
+import torch
+import shutil
 
-from sentence_transformers import CrossEncoder
+from sentence_transformers import SentenceTransformer, CrossEncoder
 from torch.utils.data import DataLoader
 from sentence_transformers.readers import InputExample
 
@@ -30,7 +32,7 @@ from src.utils import log_info
 from src.contrastive import generate_triplets
 
 
-def run_task(tasks_path, task_name, langs, teacher_model_name, reranker_model_name, output_path, model_save_path, triplets_path=None, d_config={}):
+def run_task(tasks_path, task_name, langs, teacher_model_name, reranker_model_name, output_path, model_save_path, triplets_path=None, d_config={}, model_type=None):
     """
     Run the task with the given parameters.
     """
@@ -38,6 +40,7 @@ def run_task(tasks_path, task_name, langs, teacher_model_name, reranker_model_na
     
     if output_path is not None:
         output_path = os.path.join(output_path, task_name, current_time)
+        os.makedirs(output_path, exist_ok=True)
     
     langs = ["eng"] if task_name == "crosslingual" else langs
     
@@ -60,10 +63,10 @@ def run_task(tasks_path, task_name, langs, teacher_model_name, reranker_model_na
     pct_warmup = d_config.get("pct_warmup", 0.1)                        # Percentage of warmup steps (PARTLY TUNEABLE)
     output_k = d_config.get("output_k", 10)                             # Number of outputs to consider (NO NEED TO TUNE)
     optimizer_params = d_config.get("optimizer_params", {"lr": 2e-5})   # Optimizer parameters (TUNEABLE PARAMETERS. EXPLORE MORE)
-    emb_batch_size = d_config.get("emb_batch_size", 32)                 # Batch size for embedding model (NO NEED TO TUNE)
+    emb_batch_size = d_config.get("emb_batch_size", 64)                # Batch size for embedding model (NO NEED TO TUNE)
     n_candidates = d_config.get("n_candidates", 100)                    # Candidates to consider for reranking (TUNEABLE PARAMETER)
     n_neg_candidates = d_config.get("n_neg_candidates", 4)              # Number of negative candidates to consider (TUNEABLE PARAMETER. BEWARE OF UNBALANCE AND METRIC)
-    neg_perc_threshold = d_config.get("neg_perc_threshold", 0.95)        # Negative percentage threshold. Only consider as negatives candidates with a score below 
+    neg_perc_threshold = d_config.get("neg_perc_threshold", 0.9)        # Negative percentage threshold. Only consider as negatives candidates with a score below 
                                                                         # neg_perc_threshold * postive_score (TUNEABLE PARAMETER)
                                     
     log_info(f"Train batch size: {train_batch_size}")
@@ -76,6 +79,7 @@ def run_task(tasks_path, task_name, langs, teacher_model_name, reranker_model_na
     log_info(f"Number of candidates: {n_candidates}")
     log_info(f"Number of negative candidates: {n_neg_candidates}")
     log_info(f"Negative percentage threshold: {neg_perc_threshold}\n")
+    log_info(f"Model type: {model_type}")
 
     
     # tasks_path = "data/splits/tasks_local_dev.json"
@@ -85,24 +89,32 @@ def run_task(tasks_path, task_name, langs, teacher_model_name, reranker_model_na
     df_eval = pd.DataFrame(index=ls_k)
     df_eval.index.name = "k"
     
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    
+    teacher_model_base = SentenceTransformer(teacher_model_name, device=device, trust_remote_code=True)
+
+    model_save_path_orig = model_save_path
+    
     for lang in tqdm(langs, desc="Languages"):
-        if model_save_path is not None:
-            model_save_path = os.path.join(model_save_path, f"{task_name}_{lang}_reranker")
+        
+        if model_save_path_orig is not None:
+            model_save_path = os.path.join(model_save_path_orig, f"{task_name}_{lang}_reranker")
             if not os.path.exists(model_save_path):
-                os.makedirs(model_save_path)
+                # os.makedirs(model_save_path)
+                shutil.copytree(reranker_model_name, model_save_path)
             
         log_info(f"Lang: {lang}")
         time_start_lang = time()
         
         log_info("Loading posts...")
         time_start = time()
-        posts = TextConcatPosts(posts_path, tasks_path, task_name=task_name, gs_path=gs_path, lang=lang)
+        posts = TextConcatPosts(posts_path, tasks_path, task_name=task_name, gs_path=gs_path, lang=lang, version="english")
         log_info(f"Loaded {len(posts)}")
         log_info(f"Time taken: {time() - time_start:.2f}s\n")
         
         log_info("Loading fact checks..")
         time_start = time()
-        fact_checks = TextConcatFactCheck(fact_checks_path, tasks_path, task_name=task_name, lang=lang)
+        fact_checks = TextConcatFactCheck(fact_checks_path, tasks_path, task_name=task_name, lang=lang, version="english")
         log_info(f"Loaded {len(fact_checks)}")
         log_info(f"Time taken: {time() - time_start:.2f}s\n")
 
@@ -110,9 +122,13 @@ def run_task(tasks_path, task_name, langs, teacher_model_name, reranker_model_na
         df_posts_train = posts.df_train
         df_posts_dev = posts.df_dev
     
-        log_info(f"Loading Teacher Model: {teacher_model_name}...")
+        # log_info(f"Loading Teacher Model: {teacher_model_name}...")
         time_start = time()
-        teacher_model = EmbeddingModel(teacher_model_name, df_fc, batch_size=emb_batch_size)
+        if model_type is not None:
+            teacher_model = EmbeddingModel(teacher_model_base, df_fc, batch_size=emb_batch_size, model_type=model_type)
+        else:
+            teacher_model = EmbeddingModel(teacher_model_base, df_fc, batch_size=emb_batch_size)
+            
         log_info(f"Time taken Loading Teacher Model: {time() - time_start:.2f}s\n")
         
         log_info(f"Generating triplets...")
@@ -157,7 +173,8 @@ def run_task(tasks_path, task_name, langs, teacher_model_name, reranker_model_na
                         
         log_info("Predicting...")
         time_start = time()
-        arr_cands = teacher_model.predict(df_posts_dev["full_text"].values)[:,:n_candidates]
+        with torch.no_grad():
+            arr_cands = teacher_model.predict(df_posts_dev["full_text"].values)[:,:n_candidates]
         
         # df_dev_out = df_posts_dev[["full_text", "gs"]].copy()
         ls_preds = []
@@ -188,7 +205,11 @@ def run_task(tasks_path, task_name, langs, teacher_model_name, reranker_model_na
         
         log_info(f"\nTime taken for lang {lang}: {time() - time_start_lang:.2f}s\n")
         
-    
+        # garbage collection
+        del teacher_model
+        del rerank_model
+        torch.cuda.empty_cache()
+        
     df_eval["avg"] = df_eval.mean(axis=1)
 
     if output_path is not None:
@@ -214,10 +235,11 @@ def main():
     parser.add_argument('--model_save_path', type=str, default=None, help="Directory to save model")
     parser.add_argument('--task_file', type=str, default=config.TASKS_PATH, help="Path to the task file")
     parser.add_argument('--langs', type=str, nargs='+', default=config.LANGS, help="List of languages")
+    parser.add_argument('--model_type', type=str, default=None, help="Model type for SentenceTransformer")
 
     args = parser.parse_args()
 
-    run_task(args.task_file, args.task_name, args.langs, args.teacher_model_name, args.reranker_model_name, args.output_path, args.model_save_path)
+    run_task(args.task_file, args.task_name, args.langs, args.teacher_model_name, args.reranker_model_name, args.output_path, args.model_save_path, args.model_type)
 
 if __name__ == "__main__":
     main()

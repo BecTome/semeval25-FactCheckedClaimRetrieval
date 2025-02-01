@@ -1,0 +1,101 @@
+unload ANACONDA/2023.07 (PATH)
+load ANACONDA/2023.07 (PATH)
+unload bsc/1.0 (PATH, MANPATH)
+load bsc/1.0 (PATH, MANPATH)
+unload bsc/1.0 (PATH, MANPATH)
+unload ANACONDA/2023.07 (PATH)
+load bsc/1.0 (PATH, MANPATH)
+load ANACONDA/2023.07 (PATH)
+2025-01-30 23:43:47,996 - INFO - Task: monolingual
+2025-01-30 23:43:47,996 - INFO - Tasks path: data/splits/tasks.json
+2025-01-30 23:43:47,996 - INFO - Languages: ['eng', 'fra', 'deu', 'por', 'spa', 'tha', 'msa', 'ara']
+2025-01-30 23:43:47,996 - INFO - Teacher Model: /gpfs/projects/bsc14/abecerr1/hub/models--Snowflake--snowflake-arctic-embed-l-v2.0/snapshots/edc2df7b6c25794b340229ca082e7c78782e6374
+2025-01-30 23:43:47,996 - INFO - Reranker Model: /gpfs/projects/bsc14/abecerr1/hub/models--jinaai--jina-reranker-v2-base-multilingual/snapshots/126747772a932960028d9f4dc93bd5d9c4869be4
+2025-01-30 23:43:47,996 - INFO - Output path: official/contrastive/snowflake_mv2/monolingual/20250130-234347
+
+2025-01-30 23:43:47,996 - INFO - Triplets path: None
+
+2025-01-30 23:43:47,996 - INFO - Train batch size: 32
+2025-01-30 23:43:47,996 - INFO - Num epochs: 5
+2025-01-30 23:43:47,996 - INFO - Dev size triplets: 0.1
+2025-01-30 23:43:47,996 - INFO - Percentage warmup steps: 0.1
+2025-01-30 23:43:47,996 - INFO - Output k: 10
+2025-01-30 23:43:47,996 - INFO - Optimizer params: {'lr': 2e-05}
+2025-01-30 23:43:47,996 - INFO - Embedding batch size: 256
+2025-01-30 23:43:47,996 - INFO - Number of candidates: 100
+2025-01-30 23:43:47,996 - INFO - Number of negative candidates: 4
+2025-01-30 23:43:47,996 - INFO - Negative percentage threshold: 0.9
+
+2025-01-30 23:43:47,996 - INFO - Model type: None
+2025-01-30 23:43:47,998 - INFO - Load pretrained SentenceTransformer: /gpfs/projects/bsc14/abecerr1/hub/models--Snowflake--snowflake-arctic-embed-l-v2.0/snapshots/edc2df7b6c25794b340229ca082e7c78782e6374
+2025-01-30 23:43:50,840 - INFO - 1 prompts are loaded, with the keys: ['query']
+Languages:   0%|          | 0/6 [00:00<?, ?it/s]2025-01-30 23:43:58,414 - INFO - Lang: deu
+2025-01-30 23:43:58,414 - INFO - Loading posts...
+2025-01-30 23:43:59,095 - INFO - Loaded 750
+2025-01-30 23:43:59,095 - INFO - Time taken: 0.68s
+
+2025-01-30 23:43:59,095 - INFO - Loading fact checks..
+2025-01-30 23:44:00,928 - INFO - Loaded 4996
+2025-01-30 23:44:00,928 - INFO - Time taken: 1.83s
+
+
+Batches:   0%|          | 0/20 [00:00<?, ?it/s][A
+Batches:   5%|▌         | 1/20 [00:04<01:23,  4.41s/it][A
+Batches:  10%|█         | 2/20 [00:04<00:38,  2.14s/it][A
+Batches:  15%|█▌        | 3/20 [00:05<00:23,  1.38s/it][A
+Batches:  20%|██        | 4/20 [00:05<00:15,  1.01it/s][A
+Batches:  25%|██▌       | 5/20 [00:06<00:11,  1.30it/s][A
+Batches:  30%|███       | 6/20 [00:06<00:08,  1.64it/s][A
+Batches:  35%|███▌      | 7/20 [00:06<00:06,  2.03it/s][A
+Batches:  40%|████      | 8/20 [00:07<00:04,  2.43it/s][A
+Batches:  45%|████▌     | 9/20 [00:07<00:03,  2.80it/s][A
+Batches:  50%|█████     | 10/20 [00:07<00:03,  3.18it/s][A
+Batches:  55%|█████▌    | 11/20 [00:07<00:02,  3.51it/s][A
+Batches:  60%|██████    | 12/20 [00:07<00:02,  3.93it/s][A
+Batches:  65%|██████▌   | 13/20 [00:08<00:01,  4.29it/s][A
+Batches:  70%|███████   | 14/20 [00:08<00:01,  4.40it/s][A
+Batches:  75%|███████▌  | 15/20 [00:08<00:01,  4.71it/s][A
+Batches:  80%|████████  | 16/20 [00:08<00:00,  4.96it/s][A
+Batches:  85%|████████▌ | 17/20 [00:08<00:00,  5.18it/s][A
+Batches:  90%|█████████ | 18/20 [00:08<00:00,  5.41it/s][A
+Batches:  95%|█████████▌| 19/20 [00:09<00:00,  5.60it/s][ABatches: 100%|██████████| 20/20 [00:09<00:00,  2.18it/s]
+2025-01-30 23:44:10,161 - INFO - Time taken Loading Teacher Model: 9.23s
+
+2025-01-30 23:44:10,161 - INFO - Generating triplets...
+
+Batches:   0%|          | 0/3 [00:00<?, ?it/s][ABatches:   0%|          | 0/3 [00:01<?, ?it/s]
+Languages:   0%|          | 0/6 [00:20<?, ?it/s]
+Traceback (most recent call last):
+  File "/gpfs/projects/bsc14/code/semeval25-FactCheckedClaimRetrieval/scripts/contrastive/eng_snow_multi/train.py", line 245, in <module>
+    main()
+  File "/gpfs/projects/bsc14/code/semeval25-FactCheckedClaimRetrieval/scripts/contrastive/eng_snow_multi/train.py", line 242, in main
+    run_task(args.task_file, args.task_name, args.langs, args.teacher_model_name, args.reranker_model_name, args.output_path, args.model_save_path, args.model_type)
+  File "/gpfs/projects/bsc14/code/semeval25-FactCheckedClaimRetrieval/scripts/contrastive/eng_snow_multi/train.py", line 140, in run_task
+    df_cl = generate_triplets(df_posts_train, df_fc, teacher_model, n_candidates=n_neg_candidates, neg_perc_threshold=neg_perc_threshold)
+  File "/gpfs/projects/bsc14/code/semeval25-FactCheckedClaimRetrieval/scripts/contrastive/eng_snow_multi/../../../src/contrastive.py", line 17, in generate_triplets
+    idx, sim = teacher_model.predict(df_train_posts_pairs["full_text"].values, scores=True, limit_k=False)
+  File "/gpfs/projects/bsc14/code/semeval25-FactCheckedClaimRetrieval/scripts/contrastive/eng_snow_multi/../../../src/models.py", line 113, in predict
+    arr1 = self.encode(texts)
+  File "/gpfs/projects/bsc14/code/semeval25-FactCheckedClaimRetrieval/scripts/contrastive/eng_snow_multi/../../../src/models.py", line 98, in encode
+    return torch.tensor(self.model.encode(texts, show_progress_bar=self.show_progress_bar, 
+  File "/gpfs/projects/bsc14/scratch/.conda/factcheck/lib/python3.10/site-packages/sentence_transformers/SentenceTransformer.py", line 623, in encode
+    out_features = self.forward(features, **kwargs)
+  File "/gpfs/projects/bsc14/scratch/.conda/factcheck/lib/python3.10/site-packages/sentence_transformers/SentenceTransformer.py", line 690, in forward
+    input = module(input, **module_kwargs)
+  File "/gpfs/projects/bsc14/scratch/.conda/factcheck/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/gpfs/projects/bsc14/scratch/.conda/factcheck/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/gpfs/projects/bsc14/scratch/.conda/factcheck/lib/python3.10/site-packages/sentence_transformers/models/Transformer.py", line 393, in forward
+    output_states = self.auto_model(**trans_features, **kwargs, return_dict=False)
+  File "/gpfs/projects/bsc14/scratch/.conda/factcheck/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/gpfs/projects/bsc14/scratch/.conda/factcheck/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/gpfs/projects/bsc14/scratch/.conda/factcheck/lib/python3.10/site-packages/transformers/models/xlm_roberta/modeling_xlm_roberta.py", line 943, in forward
+    extended_attention_mask = _prepare_4d_attention_mask_for_sdpa(
+  File "/gpfs/projects/bsc14/scratch/.conda/factcheck/lib/python3.10/site-packages/transformers/modeling_attn_mask_utils.py", line 447, in _prepare_4d_attention_mask_for_sdpa
+    return AttentionMaskConverter._expand_mask(mask=mask, dtype=dtype, tgt_len=tgt_len)
+  File "/gpfs/projects/bsc14/scratch/.conda/factcheck/lib/python3.10/site-packages/transformers/modeling_attn_mask_utils.py", line 184, in _expand_mask
+    expanded_mask = mask[:, None, None, :].expand(bsz, 1, tgt_len, src_len).to(dtype)
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 64.00 GiB. GPU 0 has a total capacity of 63.43 GiB of which 51.74 GiB is free. Including non-PyTorch memory, this process has 11.68 GiB memory in use. Of the allocated memory 10.18 GiB is allocated by PyTorch, and 864.06 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)

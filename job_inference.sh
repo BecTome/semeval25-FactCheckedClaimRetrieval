@@ -3,8 +3,8 @@
 #SBATCH -D .
 #SBATCH -A bsc14
 #SBATCH --qos=acc_debug
-#SBATCH --output=logs_inference/ce_train_%j.out
-#SBATCH --error=logs_inference/ce_train_%j.err
+#SBATCH --output=example_log/ce_train_%j.out
+#SBATCH --error=example_log/ce_train_%j.err
 #SBATCH --ntasks=1
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=32
