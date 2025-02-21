@@ -38,6 +38,7 @@ def run_task(tasks_path, task_name, langs, teacher_model_name, reranker_model_na
     
     if output_path is not None:
         output_path = os.path.join(output_path, task_name, current_time)
+        os.makedirs(output_path, exist_ok=True)
     
     langs = ["eng"] if task_name == "crosslingual" else langs
     
@@ -222,7 +223,7 @@ def run_task(tasks_path, task_name, langs, teacher_model_name, reranker_model_na
     if output_path is not None:
         if not os.path.exists(output_path):
             os.makedirs(output_path)
-
+            
         with open(os.path.join(output_path, f"{task_name}_predictions.json"), "w") as f:
             json.dump(d_out, f)
             

@@ -3,13 +3,12 @@
 #SBATCH -D .
 #SBATCH -A bsc14
 #SBATCH --qos=acc_bscls
-#SBATCH --output=output/contrastive/snowflake/mono/log_%j.out
-#SBATCH --error=output/contrastive/snowflake/mono/log_%j.err
+#SBATCH --output=output/official/contrastive/snowflake/orig_lang_snowflake/log_%j.out
+#SBATCH --error=output/official/contrastive/snowflake/orig_lang_snowflake/log_%j.err
 #SBATCH --ntasks=1
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=32
-#SBATCH --time=4:00:00
-#SBATCH --exclusive
+#SBATCH --time=2:00:00
 
 ## --qos=acc_bscls
 module load anaconda
@@ -20,10 +19,10 @@ source ~/.bashrc  # This reloads the shell to apply conda settings
 
 conda activate factcheck
 
-/gpfs/projects/bsc14/scratch/.conda/factcheck/bin/python scripts/contrastive/train.py --task_name monolingual\
+/gpfs/projects/bsc14/scratch/.conda/factcheck/bin/python scripts/contrastive/train.py --task_name crosslingual\
  --teacher_model_name '/gpfs/projects/bsc14/abecerr1/hub/models--Snowflake--snowflake-arctic-embed-l-v2.0/snapshots/edc2df7b6c25794b340229ca082e7c78782e6374'\
  --reranker_model_name '/gpfs/projects/bsc14/abecerr1/hub/models--jinaai--jina-reranker-v2-base-multilingual/snapshots/126747772a932960028d9f4dc93bd5d9c4869be4'\
-  --output_path output/contrastive/snowflake --task_file data/splits/tasks_no_gs_overlap.json
+  --output_path output/official/contrastive/orig_lang_snowflake/ --task_file data/splits/tasks.json
 
 # /gpfs/projects/bsc14/scratch/.conda/factcheck/bin/python scripts/contrastive/train.py --task_name monolingual\
 #  --teacher_model_name '/gpfs/projects/bsc14/abecerr1/hub/models--intfloat--multilingual-e5-large/snapshots/ab10c1a7f42e74530fe7ae5be82e6d4f11a719eb'\

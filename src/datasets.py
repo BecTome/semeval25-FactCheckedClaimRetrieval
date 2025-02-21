@@ -200,9 +200,13 @@ class BaseFactCheckDataset(Dataset):
 
     def preprocess_data(self):
         df_fact_check = self.load_data(indices=self.idx_fc)
+        text_lan = df_fact_check["claim"].apply(lambda x: x[-1][0][0] if isinstance(x, tuple) else x)
+        df_fact_check["lan"] = text_lan
         df_fact_check["claim"] = df_fact_check["claim"].apply(lambda x: x[self.idx_lang] if isinstance(x, tuple) else x)
         df_fact_check["title"] = df_fact_check["title"].apply(lambda x: x[self.idx_lang] if isinstance(x, tuple) else x)
         df_fact_check["instances"] = df_fact_check["instances"].apply(lambda x: [url for _, url in x] if len(x)>0 else [])
+        
+
         
         return df_fact_check
     

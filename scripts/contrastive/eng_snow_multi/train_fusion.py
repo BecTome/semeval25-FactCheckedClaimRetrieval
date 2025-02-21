@@ -57,8 +57,9 @@ def run_task(tasks_path, task_name, langs, dense_model_name, sparse_model_name, 
     fact_checks_path = config.FACT_CHECKS_PATH
     gs_path = config.GS_PATH
     
-    train_batch_size = d_config.get("train_batch_size", 128)            # Dataloader batch size (NO NEED TO TUNE)
-    num_epochs = d_config.get("num_epochs", 10)                         # Number of epochs (TUNEABLE PARAMETER. MONITOR LOSS)
+                                                                 # neg_perc_threshold * postive_score (TUNEABLE PARAMETER)
+    train_batch_size = d_config.get("train_batch_size", 32)            # Dataloader batch size (NO NEED TO TUNE)
+    num_epochs = d_config.get("num_epochs", 5)                         # Number of epochs (TUNEABLE PARAMETER. MONITOR LOSS)
     dev_size_triplets = d_config.get("dev_size_triplets", 0.1)          # Dev size for triplets (NO NEED TO TUNE)
     pct_warmup = d_config.get("pct_warmup", 0.1)                        # Percentage of warmup steps (PARTLY TUNEABLE)
     output_k = d_config.get("output_k", 10)                             # Number of outputs to consider (NO NEED TO TUNE)
@@ -68,6 +69,7 @@ def run_task(tasks_path, task_name, langs, dense_model_name, sparse_model_name, 
     n_neg_candidates = d_config.get("n_neg_candidates", 4)              # Number of negative candidates to consider (TUNEABLE PARAMETER. BEWARE OF UNBALANCE AND METRIC)
     neg_perc_threshold = d_config.get("neg_perc_threshold", 0.9)        # Negative percentage threshold. Only consider as negatives candidates with a score below 
                                                                         # neg_perc_threshold * postive_score (TUNEABLE PARAMETER)
+           
                                     
     log_info(f"Train batch size: {train_batch_size}")
     log_info(f"Num epochs: {num_epochs}")

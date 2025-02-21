@@ -1,0 +1,34 @@
+unload ANACONDA/2023.07 (PATH)
+load ANACONDA/2023.07 (PATH)
+unload bsc/1.0 (PATH, MANPATH)
+load bsc/1.0 (PATH, MANPATH)
+unload bsc/1.0 (PATH, MANPATH)
+unload ANACONDA/2023.07 (PATH)
+load bsc/1.0 (PATH, MANPATH)
+load ANACONDA/2023.07 (PATH)
+2024-10-31 18:20:13,115 - INFO - Task: monolingual
+2024-10-31 18:20:13,115 - INFO - Tasks path: data/splits/task.json
+2024-10-31 18:20:13,115 - INFO - Languages: ['fra', 'spa', 'eng', 'por', 'tha', 'deu', 'msa', 'ara']
+2024-10-31 18:20:13,115 - INFO - Teacher Model: /home/bsc/bsc830651/.cache/huggingface/hub/models--intfloat--multilingual-e5-large/snapshots/ab10c1a7f42e74530fe7ae5be82e6d4f11a719eb
+2024-10-31 18:20:13,115 - INFO - Reranker Model: jinaai/jina-reranker-v2-base-multilingual
+2024-10-31 18:20:13,115 - INFO - Output path: official/contrastive/monolingual/20241031-182013
+
+Languages:   0%|          | 0/8 [00:00<?, ?it/s]2024-10-31 18:20:13,117 - INFO - Lang: fra
+2024-10-31 18:20:13,117 - INFO - Loading posts...
+Languages:   0%|          | 0/8 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/gpfs/home/bsc/bsc830651/Documents/GitHub/semeval25-FactCheckedClaimRetrieval/scripts/contrastive/train.py", line 191, in <module>
+    main()
+  File "/gpfs/home/bsc/bsc830651/Documents/GitHub/semeval25-FactCheckedClaimRetrieval/scripts/contrastive/train.py", line 188, in main
+    run_task(args.task_file, args.task_name, args.langs, args.teacher_model_name, args.reranker_model_name, args.output_path)
+  File "/gpfs/home/bsc/bsc830651/Documents/GitHub/semeval25-FactCheckedClaimRetrieval/scripts/contrastive/train.py", line 69, in run_task
+    posts = TextConcatPosts(posts_path, tasks_path, task_name=task_name, gs_path=gs_path, lang=lang)
+  File "/gpfs/home/bsc/bsc830651/Documents/GitHub/semeval25-FactCheckedClaimRetrieval/scripts/contrastive/../../src/datasets.py", line 206, in __init__
+    super().__init__(posts_path, tasks_path, task_name, lang, version, gs_path, **kwargs)
+  File "/gpfs/home/bsc/bsc830651/Documents/GitHub/semeval25-FactCheckedClaimRetrieval/scripts/contrastive/../../src/datasets.py", line 105, in __init__
+    super().__init__(posts_path, tasks_path, task_name, lang, index_col=self.index_col, iter_cols=self.iter_cols, version=version, **kwargs)
+  File "/gpfs/home/bsc/bsc830651/Documents/GitHub/semeval25-FactCheckedClaimRetrieval/scripts/contrastive/../../src/datasets.py", line 40, in __init__
+    self.tasks = self.load_tasks()
+  File "/gpfs/home/bsc/bsc830651/Documents/GitHub/semeval25-FactCheckedClaimRetrieval/scripts/contrastive/../../src/datasets.py", line 75, in load_tasks
+    return json.load(open(self.tasks_path))
+FileNotFoundError: [Errno 2] No such file or directory: 'data/splits/task.json'

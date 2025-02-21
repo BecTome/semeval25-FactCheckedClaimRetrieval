@@ -103,13 +103,13 @@ def run_task(tasks_path, task_name, langs, teacher_model_name, reranker_model_na
         
         log_info("Loading posts...")
         time_start = time()
-        posts = TextConcatPosts(posts_path, tasks_path, task_name=task_name, gs_path=gs_path, lang=lang, version="english")
+        posts = TextConcatPosts(posts_path, tasks_path, task_name=task_name, gs_path=gs_path, lang=lang)
         log_info(f"Loaded {len(posts)}")
         log_info(f"Time taken: {time() - time_start:.2f}s\n")
         
         log_info("Loading fact checks..")
         time_start = time()
-        fact_checks = TextConcatFactCheck(fact_checks_path, tasks_path, task_name=task_name, lang=lang, version="english")
+        fact_checks = TextConcatFactCheck(fact_checks_path, tasks_path, task_name=task_name, lang=lang)
         log_info(f"Loaded {len(fact_checks)}")
         log_info(f"Time taken: {time() - time_start:.2f}s\n")
 
@@ -203,8 +203,8 @@ def run_task(tasks_path, task_name, langs, teacher_model_name, reranker_model_na
     df_eval["avg"] = df_eval.mean(axis=1)
 
     if output_path is not None:
-        if not os.path.exists(output_path):
-            os.makedirs(output_path)
+        # if not os.path.exists(output_path):
+        os.makedirs(output_path)
 
         with open(os.path.join(output_path, f"{task_name}_predictions.json"), "w") as f:
             json.dump(d_out, f)

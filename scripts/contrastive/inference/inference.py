@@ -39,11 +39,11 @@ def predict_fact_checks(teacher_model_base, reranker_model_name, task_name="mono
 
     # Load Fact Checks
     print("Loading Fact Checks...")
-    fc = TextConcatFactCheck(fact_checks_path, tasks_path=tasks_path, task_name=task_name, lang=lang, version="english")
+    fc = TextConcatFactCheck(fact_checks_path, tasks_path=tasks_path, task_name=task_name, lang=lang, )
 
     # Load Posts
     print("Loading Posts...")
-    posts = TextConcatPosts(posts_path, tasks_path=tasks_path, task_name=task_name, lang=lang, gs_path=gs_path, version="english")
+    posts = TextConcatPosts(posts_path, tasks_path=tasks_path, task_name=task_name, lang=lang, gs_path=gs_path, )
 
     teacher_model = EmbeddingModel(teacher_model_base, fc.df, batch_size=emb_batch_size)
 
@@ -82,7 +82,8 @@ emb_batch_size = 64
 d_monolingual = {}
 d_crosslingual = {}
 
-preds_path = "official/contrastive/snowflake_mv2/predictions"
+preds_path = "official/contrastive/snowflake_mv2/orig_versions/predictions"
+os.makedirs(preds_path, exist_ok=True)
 models_path = "official/contrastive/snowflake_mv2/models"
 
 # Save Predictions
