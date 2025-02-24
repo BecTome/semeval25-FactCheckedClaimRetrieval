@@ -1,0 +1,103 @@
+The results of your cluster analysis provide valuable insights into the thematic patterns of the errors. Let’s break down the clusters and interpret the findings:
+
+Cluster Analysis Results:
+Cluster 0 Keywords:
+Copy
+['video', 'shows', 'di', 'circulated', 'india', 'hindu', 'muslim', 'ini', 'man', 'coronavirus', 'yang', 'old', 'online', 'reports', 'china', 'shared', 'november', 'viral', 'chinese', '2015']
+Interpretation:
+
+Theme: Misattributed or old videos circulating online.
+
+Key Topics:
+
+Videos related to India, Hindu-Muslim issues, and coronavirus.
+
+Keywords like "circulated", "old", and "2015" suggest that these videos are being shared out of context or are outdated.
+
+Geographic Focus: India and China.
+
+Example Errors:
+
+A video from 2015 about Hindu-Muslim tensions in India is shared as if it’s a recent event.
+
+A coronavirus-related video from China is misattributed to a different country or time.
+
+Cluster 1 Keywords:
+Copy
+['indian', 'modi', 'pakistan', 'india', 'pm', 'video', 'army', 'slogans', 'kashmir', 'shared', 'chinese', 'raised', 'protest', 'old', 'narendra', 'zindabad', 'speech', 'recent', 'shows', 'farmers']
+Interpretation:
+
+Theme: Political and geopolitical issues involving India, Pakistan, and Kashmir.
+
+Key Topics:
+
+Indian Politics: References to PM Modi ("modi", "narendra"), protests ("protest", "farmers"), and slogans ("zindabad").
+
+Geopolitical Tensions: Keywords like "pakistan", "kashmir", and "army" suggest posts about India-Pakistan relations.
+
+Misattributed Content: Videos or speeches shared out of context.
+
+Example Errors:
+
+A video of PM Modi’s speech is misattributed to a different event or context.
+
+Old videos of protests in Kashmir are shared as if they are recent.
+
+Cluster 2 Keywords:
+Copy
+['في', 'en', 'la', 'que', 'em', 'para', 'el', 'não', 'foto', 'هذا', 'vídeo', 'bolsonaro', 'da', 'من', 'lula', 'una', 'por', 'على', 'هذه', 'ولا']
+Interpretation:
+
+Theme: Multilingual posts, primarily in Arabic, Spanish, and Portuguese.
+
+Key Topics:
+
+Arabic Content: Keywords like "في" (in), "هذا" (this), and "على" (on) suggest posts in Arabic.
+
+Spanish/Portuguese Content: Keywords like "la", "que", "em", "não", and "bolsonaro" suggest posts related to Latin America or Brazil.
+
+Misattributed Media: Photos ("foto") or videos ("vídeo") shared out of context.
+
+Example Errors:
+
+A photo or video in Arabic is misattributed to a different event or location.
+
+A post about Bolsonaro or Lula in Brazil is misclassified.
+
+Cluster 3 Keywords:
+Copy
+['photo', 'covid', '19', 'shows', 'sri', 'image', 'lanka', 'taken', 'vaccine', 'coronavirus', 'hospital', 'lankan', 'vaccines', 'health', 'montre', 'cette', 'contra', 'video', 'man', 'pfizer']
+Interpretation:
+
+Theme: COVID-19 misinformation, particularly related to vaccines and health.
+
+Key Topics:
+
+Vaccines: Keywords like "vaccine", "pfizer", and "coronavirus" suggest posts about COVID-19 vaccines.
+
+Misattributed Media: Photos or videos ("photo", "image", "video") from Sri Lanka or other regions are shared out of context.
+
+Health Misinformation: Claims about hospitals, vaccines, or health risks.
+
+Example Errors:
+
+A photo of a hospital in Sri Lanka is misattributed to a different country or context.
+
+A video about Pfizer vaccines is shared with false claims.
+
+Key Insights from Clusters:
+Misattributed Media:
+
+Clusters 0, 1, and 3 highlight the prevalence of misattributed videos and photos. These errors often involve old or out-of-context media being shared as if they are recent or relevant to a different event.
+
+Geopolitical and Political Content:
+
+Cluster 1 focuses on Indian politics and India-Pakistan tensions. These errors may arise from the complexity of geopolitical claims and the emotional resonance of such topics.
+
+Multilingual Challenges:
+
+Cluster 2 highlights the challenges of multilingual content, particularly in Arabic, Spanish, and Portuguese. The model may struggle with cross-lingual retrieval for these languages.
+
+COVID-19 Misinformation:
+
+Cluster 3 underscores the prevalence of COVID-19-related misinformation, especially about vaccines. This is a common theme in fact-checking due to the high volume of health-related claims.
