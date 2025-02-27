@@ -89,8 +89,6 @@ python src/evaluate.py --dataset data/splits_test.json
 
 **Metrics Used:**
 - **Success@10** (Primary metric for ranking performance)
-- **MRR (Mean Reciprocal Rank)**
-- **Recall@10** (Additional retrieval effectiveness measure)
 
 ---
 ## Results
