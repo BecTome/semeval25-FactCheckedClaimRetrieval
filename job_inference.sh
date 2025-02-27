@@ -19,4 +19,4 @@ source ~/.bashrc  # This reloads the shell to apply conda settings
 
 conda activate factcheck
 
-python scripts/contrastive/inference/inference.py
+$CONDA_PREFIX/bin/python scripts/contrastive/inference/inference.py

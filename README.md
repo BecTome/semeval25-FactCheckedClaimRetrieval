@@ -52,11 +52,12 @@ bash job_train.sh
 ```
 Alternatively, use Python directly:
 ```sh
-python scripts/contrastive/train.py --task_name crosslingual\
-    --teacher_model_name 'path_to_model'\
-    --reranker_model_name 'path_to_reranker'\
-    --output_path 'path_to_output_folder'\
-     --task_file data/splits/tasks.json
+python scripts/contrastive/train.py\
+    --task_name crosslingual\
+    --teacher_model_name 'Snowflake/snowflake-arctic-embed-l-v2.0'\
+    --reranker_model_name 'jinaai/jina-reranker-v2-base-multilingual'\
+    --output_path output\
+    --task_file data/splits/tasks.json
 ```
 
 | Parameter Name        | Description |

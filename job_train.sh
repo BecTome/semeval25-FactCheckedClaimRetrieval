@@ -20,4 +20,9 @@ source ~/.bashrc  # This reloads the shell to apply conda settings
 
 conda activate factcheck
 
-python scripts/contrastive/train.py
+$CONDA_PREFIX/bin/python scripts/contrastive/train.py\
+    --task_name crosslingual\
+    --teacher_model_name 'Snowflake/snowflake-arctic-embed-l-v2.0'\
+    --reranker_model_name 'jinaai/jina-reranker-v2-base-multilingual'\
+    --output_path tmp\
+    --task_file data/splits/tasks.json
