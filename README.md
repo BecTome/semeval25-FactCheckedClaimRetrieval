@@ -1,7 +1,7 @@
 # UPC-HLE at SemEval-2025 Task 7: Multilingual Fact-Checked Claim Retrieval
 
 ## Overview
-This repository contains the implementation of the system developed by **UPC-HLE** for **SemEval-2025 Task 7**, which focuses on **multilingual and cross-lingual fact-checked claim retrieval**. Our approach leverages **Text Embedding Models (TEMs)** combined with **Cross-Encoders (CEs)** for improved fact-check retrieval across languages.
+This repository contains the implementation of the system developed by **UPC-HLE** for **SemEval-2025 Task 7** (see task [web](https://disai.eu/semeval-2025/)), which focuses on **multilingual and cross-lingual fact-checked claim retrieval**. Our approach leverages **Text Embedding Models (TEMs)** combined with **Cross-Encoders (CEs)** for improved fact-check retrieval across languages.
 
 ## Features
 - **Multilingual & Cross-Lingual Retrieval**: Supports claim retrieval across multiple languages.
