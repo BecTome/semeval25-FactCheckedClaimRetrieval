@@ -33,7 +33,7 @@ Place the dataset in the `data/` directory. A sample dataset is included under `
 ├── environment.yaml       # Conda environment setup
 ├── requirements.txt       # Python dependencies
 ├── job_inference.sh       # Inference job script
-├── job_train_ce.sh        # Training job script
+├── job_train.sh           # Training job script
 ├── data/                  # Dataset and splits
 │   ├── sample_data/       # Example dataset files
 │   ├── splits/            # Predefined dataset splits
@@ -48,12 +48,30 @@ Place the dataset in the `data/` directory. A sample dataset is included under `
 ### **Train Cross-Encoder (CE)**
 Run the training script to fine-tune the cross-encoder model:
 ```sh
-bash job_train_ce.sh
+bash job_train.sh
 ```
 Alternatively, use Python directly:
 ```sh
-python src/train_cross_encoder.py --epochs 5 --lr 2e-5
+python scripts/contrastive/train.py --task_name crosslingual\
+    --teacher_model_name 'path_to_model'\
+    --reranker_model_name 'path_to_reranker'\
+    --output_path 'path_to_output_folder'\
+     --task_file data/splits/tasks.json
 ```
+
+| Parameter Name        | Description |
+|----------------------|-------------|
+| **train_batch_size** | Number of training samples processed at once (NO NEED TO TUNE). |
+| **num_epochs** | Number of times the model sees the entire dataset (TUNEABLE PARAMETER, MONITOR LOSS). |
+| **dev_size_triplets** | Portion of data used for validation (NO NEED TO TUNE). |
+| **pct_warmup** | Percentage of warmup steps before full training begins (PARTLY TUNEABLE). |
+| **output_k** | Number of top retrieved candidates considered (NO NEED TO TUNE). |
+| **optimizer_params** | Learning rate and other optimizer configurations (TUNEABLE PARAMETERS, EXPLORE MORE). |
+| **emb_batch_size** | Batch size for embedding model processing (NO NEED TO TUNE). |
+| **n_candidates** | Number of retrieved candidates before re-ranking (TUNEABLE PARAMETER). |
+| **n_neg_candidates** | Number of negative candidates sampled for training (TUNEABLE, BEWARE OF UNBALANCE). |
+| **neg_perc_threshold** | Score threshold to filter hard negatives (TUNEABLE PARAMETER). |
+
 
 ### **Run Inference**
 To generate predictions on new claims:
